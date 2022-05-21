@@ -58,20 +58,19 @@ class ByteStreamTcpServer:
     def run(self):
         print("[ INFO ] - Running server")
 
-        try:
-            while self.keep_running:
+        while self.keep_running:
+            try:
                 conn, addr = self.listener.accept()
+            except ConnectionAbortedError:
+                print("[ INFO ] - Shutting down server")
 
-                while True:
-                    data = conn.recv(CHUNK_SIZE)
+            while True:
+                data = conn.recv(CHUNK_SIZE)
 
-                    if not data:
-                        break
+                if not data:
+                    break
 
-                    print("[ INFO ] - Got " + str(data) + " from client")
-
-        except ConnectionAbortedError:
-            print("[ INFO ] - Shutting down server")
+                print("[ INFO ] - Got " + str(data) + " from client")
 
     def stop_running(self):
         self.keep_running = False
