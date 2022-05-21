@@ -17,7 +17,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             conn.sendall(data)
 
 # Protocolo aplicación
-'''
+"""
 python upload.py -s path_en_cliente.mp3 -n nombre_o_path_en_servidor.mp3
 python download.py -n nombre_o_path_en_servidor.mp3 -d path_en_cliente.mp3
 
@@ -61,7 +61,7 @@ enum Response {
 conn.recv<Message>()
 conn.recv(2mb)
 
-'''
+"""
 
 # class ByteStream:
 #     @abstractmethod
@@ -140,7 +140,7 @@ conn.recv(2mb)
 
 # Protocolo transporte
 
-'''
+"""
 - Definir mensajes (aplicación) [hecho]
 - Ver como serializar los mensajes / Definir protocolo binario
     (id, length, payload = ILP)
@@ -149,4 +149,4 @@ conn.recv(2mb)
 - Implementar ByteStream + Accept TCP
 - Implementar ByteStream + Accept Stop & Wait
 - Implementar ByteStream + Accept Selective repeat
-'''
+"""

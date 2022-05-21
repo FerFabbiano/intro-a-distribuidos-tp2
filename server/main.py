@@ -1,9 +1,11 @@
 from threading import Thread
-import socket
+
+from models import ByteStreamTcpServer
 
 HOST = "127.0.0.1"  # Standard loopback interface address (localhost)
 PORT = 65432  # Port to listen on (non-privileged ports are > 1023)
 
+"""'
 class Server:
 
     def __init__(self):
@@ -26,24 +28,26 @@ class Server:
             pass
 
     def stop_running():
-        
+       """
 
 
 def main():
-    
+    byteStreamTcpServer = ByteStreamTcpServer(HOST, PORT)
 
-    # Corro el servidor en un hilo aparte
-    # Server server;
-    # server.run();
-    thread = Thread(target = run)
+    thread = Thread(target=byteStreamTcpServer.run)
     thread.start()
     userInput = input()
 
-    while (userInput != 'q'):
+    while userInput != "q":
         userInput = input()
 
+    byteStreamTcpServer.stop_running()
     thread.join()
-    #server.stop_running();
-    #server.join();
-if __name__ == '__main__':
+
+    # thread.join()
+    # server.stop_running();
+    # server.join();
+
+
+if __name__ == "__main__":
     main()
