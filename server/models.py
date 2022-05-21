@@ -60,12 +60,14 @@ class ByteStreamTcpServer:
 
         while self.keep_running:
             try:
-                conn, addr = self.listener.accept()
+                peer_socket, addr = self.listener.accept()
+                connection = ByteStreamTcp(peer_socket)
             except ConnectionAbortedError:
                 print("[ INFO ] - Shutting down server")
+                continue
 
             while True:
-                data = conn.recv(CHUNK_SIZE)
+                data = connection.recv_bytes(CHUNK_SIZE)
 
                 if not data:
                     break
