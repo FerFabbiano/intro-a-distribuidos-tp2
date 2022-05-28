@@ -24,40 +24,20 @@ class Protocol():
                 if chr(msg[0]) == 'N':
                     print("[ INFO IN NEW CONNECTION ] - ", msg[1:])
                     self.new_connections.put((msg[1:], clientAddress))
-            except Exception as e:
-                print("[ INFO ] - Shutting down server ", e)
-
-        print("[ INFO IN PROTOCOL ] - Closing")
-
-        # if msg[0] == 'C':
-        #     self.
-        # if not self.buffers[clientAddress]:
-        #     self.buffers[clientAddress] = []
-
-        # self.buffers[clientAddress].append(msg)
+            except Exception:
+                print("[ INFO PROTOCOL ] - Closing Socket Connection ")
 
     def get_new_connection(self):
-        print("[ INFO IN PROTOCOL ] - Waiting New Connections")
-
         return self.new_connections.get()
 
     def send_ack(self, address):
         self.socket.sendto(ACK, address)
 
-    def send_bytes(self, address, data):
-        sentBytes = self.socket.sendto(data, address)
-        print("[ INFO ] - Enviamos: ", str(sentBytes))
-
-        # originIP = "IP ORIGEN"
-        # originPORT = "PUERTO ORIGEN"
-        # recvBytes = 10
-        # payload = "lalala"
-
-        return None
-
     def close(self):
+        print("[ INFO PROTOCOL ] - Starting Closing protocol connection")
+
         self.keep_running = False
-        print("[ INFO ] - Closing socket connections")
         self.socket.close()
-        self.new_connections.put(())
-        self.new_connections.join()
+        self.new_connections.put(None)
+
+        print("[ INFO PROTOCOL ] - Finishing Closing protocol connection")
