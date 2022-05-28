@@ -1,32 +1,13 @@
 
 from threading import Thread
 
+from FSConnection import FSConnection
 from transport.protocol import Protocol
 
 
 OP_CODE_SIZE = 1
 
 LISTEN_TO = 5
-
-
-class FSConnection:
-    def __init__(self, protocol, data):
-        self.protocol = protocol
-        self.initial_payload = data
-
-        self.thread = Thread(target=self.run)
-        self.thread.start()
-
-    def run(self):
-        print("[ INFO NEW CONNECTION] - Running the new client")
-        print("[ INITAL DATA ] - ", str(self.initial_payload))
-
-        # PROCESAR SI LA INFO ES CORRECTA
-        # Y CONTESTARLE AL CLIENTE SI ACEPTAMOS SU CONEXION
-
-    def close(self):
-        self.thread.join()
-
 
 class FSServer:
     def __init__(self, host, port):
