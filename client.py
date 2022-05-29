@@ -1,5 +1,5 @@
 from time import sleep
-from transport_tpc.connection import Connection
+from transport_tcp.connection import Connection
 
 HOST = "127.0.0.1"  # The server's hostname or IP address
 PORT = 65433  # The port used by the server
@@ -12,6 +12,7 @@ def main():
     connection = Connection.connect(HOST, PORT)
     print("[ NUEVA CONEXION ]")
     sleep(100000)
+    print(str(connection))
     # (recvData, serverAddress) = s.recvfrom(BUFFER_SIZE)
 
     # Poner validacion de que solo el servidor me mande mensajes

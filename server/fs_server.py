@@ -1,5 +1,5 @@
 from server.fs_connection import FSConnection
-from transport_tpc.listener import Listener
+from transport_tcp.listener import Listener
 
 
 OP_CODE_SIZE = 1
@@ -22,7 +22,7 @@ class FSServer:
 
             new_connection = self.listener.get_new_connection()
 
-            if(new_connection is None):
+            if new_connection is None:
                 return
 
             print("[ INFO ] - Have New Connection from ", str(new_connection))
@@ -30,8 +30,7 @@ class FSServer:
             # If we don't have a client connection with that specific address
             # We create one
             if not self.connections.get(new_connection.address):
-                self.connections[new_connection.address] = FSConnection(
-                    new_connection)
+                self.connections[new_connection.address] = FSConnection(new_connection)
 
     def stop(self):
 
