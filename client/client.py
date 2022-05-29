@@ -1,65 +1,61 @@
-import socket
-from time import sleep
 import argparse
 
 
 HOST = "127.0.0.1"  # The server's hostname or IP address
 PORT = 65432  # The port used by the server
-BUFFER_SIZE = 508
+CHUNK_SIZE = 500
 
 
 def build_parser():
     my_parser = argparse.ArgumentParser()
 
-    my_parser.add_argument("<command description>")
-    my_parser.add_argument("-v", "--verbose", help="increase output verbosity")
-    my_parser.add_argument("-q", "--quiet", help="decrease output verbosity")
-    my_parser.add_argument("-H", "--host", help="server IP address")
-    my_parser.add_argument("-p", "--port", help="server port", required=True)
-    my_parser.add_argument("-s", "--src", help="source file path", required=True)
-    my_parser.add_argument("-n", "--name", help="file name", required=True)
-
-    # my_parser.add_argument("b", help="a second argument")
-
-    # my_parser.add_argument("c", help="a third argument")
-
-    # my_parser.add_argument("d", help="a fourth argument")
-
-    # my_parser.add_argument("e", help="a fifth argument")
-
-    # my_parser.add_argument(
-    #     "-v", "--verbose", action="store_true", help="an optional argument"
-    # )
+    group = my_parser.add_mutually_exclusive_group()
+    group.add_argument(
+        "-v", "--verbose", help="increase output verbosity", action="store_true"
+    )
+    group.add_argument(
+        "-q", "--quiet", help="decrease output verbosity", action="store_true"
+    )
+    my_parser.add_argument("-H", "--host", help="server IP address", metavar="")
+    my_parser.add_argument(
+        "-p", "--port", help="server port", required=True, metavar=""
+    )
+    my_parser.add_argument(
+        "-s", "--src", help="source file path", required=True, metavar=""
+    )
+    my_parser.add_argument("-n", "--name", help="file name", required=True, metavar="")
 
     return my_parser
 
 
-def main():
-    my_parser = build_parser()
-    args = my_parser.parse_args()
+def read_file(path):
+    file = open(path, "rb")
 
-    print(args)
+    chunk = file.read(CHUNK_SIZE)
+
+    while chunk:
+        print(chunk)
+        chunk = file.read(CHUNK_SIZE)
+
+    return 0
+
+
+def main():
+    args = build_parser().parse_args()
+
+    server_port = args.port
+    source_file_path = args.src
+    file_name = args.name
+
+    print("[ INFO ] - Got server port: {}".format(server_port))
+    print("[ INFO ] - Got source file path: {}".format(source_file_path))
+    print("[ INFO ] - Got file name: {}".format(file_name))
+
+    print("[ INFO ] - Reading file: {}".format(args.name))
+    read_file(source_file_path + "/" + file_name)
+    print("[ SUCCESS ] - Finish reading file: {}".format(args.name))
 
     return 0
 
 
 main()
-
-with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
-
-    # while(True):
-    s.sendto(b"NCLIENTE NUEVO", (HOST, PORT))
-    sleep(100000)
-    # (recvData, serverAddress) = s.recvfrom(BUFFER_SIZE)
-
-    # print("[ PROTOCOL ACK ] - ", str(recvData))
-
-    # Poner validacion de que solo el servidor me mande mensajes
-
-    # s.sendto(b"C", (HOST, PORT))
-    # (recvData, serverAddress) = s.recvfrom(BUFFER_SIZE)
-
-    # print("[ PROTOCOL ACK ] - ", str(recvData))
-
-
-# print(f"Received {data!r}")
