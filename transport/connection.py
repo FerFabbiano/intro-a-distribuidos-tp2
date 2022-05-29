@@ -22,7 +22,7 @@ class Connection:
         self._controller.on_ack_received(segment)
    
     @staticmethod
-    def connect(address, port):
+    def connect(address, port, controller=None):
         pass
     
     def send(self, data: bytes):
