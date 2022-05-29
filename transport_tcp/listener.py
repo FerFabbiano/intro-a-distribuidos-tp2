@@ -2,7 +2,7 @@ from queue import Queue
 import socket
 from threading import Thread
 
-from transport.connection import Connection
+from .connection import Connection
 
 BUFFER_SIZE = 508
 

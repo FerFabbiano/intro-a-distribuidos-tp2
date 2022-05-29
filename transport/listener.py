@@ -13,11 +13,11 @@ class Listener:
         self.connections = {}
         self.network_thread = None
         self.timers_thread = None
-    
+
     def start(self):
         if self.socket or self.network_thread or self.timers_thread:
             raise Exception("The server is already running!")
-        
+
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.socket.bind(self.src_address)
         self.timers_thread = Thread(target=self._run_timers)
@@ -31,19 +31,20 @@ class Listener:
                 msg, client_address = self.socket.recvfrom(BUFFER_SIZE)
                 segment = Segment.from_datagram(msg)
                 if not segment.is_checksum_correct():
-                    print("[Listener.run_network] Segment with invalid checksum: ", segment)
+                    print(
+                        "[Listener.run_network] Segment with invalid checksum: ", segment)
                     continue
-                
+
                 if segment.opcode == Opcode.NewConnection:
                     print("[ INFO IN NEW CONNECTION ] - ", msg[1:])
                     self.connections[client_address] = Connection(self)
                     self.new_connections.put(self.connections[client_address])
                 else:
                     connection = self.connections.get(client_address)
-                    if segment.opcode == Opcode.
+                    # if segment.opcode == Opcode.
             except Exception as e:
                 print("[Listener.run_network] Exception occured: ", e)
-    
+
     def _run_timers(self):
         while self.keep_running:
             time.sleep(0.010)
@@ -59,7 +60,7 @@ class Listener:
             # Remove old connections
             for address in connections_to_remove:
                 self.connections.pop(address)
-    
+
     def stop(self):
         if not self.socket or not self.network_thread or not self.timers_thread:
             raise Exception("The server is not running!")

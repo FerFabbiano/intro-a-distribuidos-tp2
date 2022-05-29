@@ -1,5 +1,5 @@
-from fs_connection import FSConnection
-from transport.listener import Listener
+from server.fs_connection import FSConnection
+from transport_tpc.listener import Listener
 
 
 OP_CODE_SIZE = 1
