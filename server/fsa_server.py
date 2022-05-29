@@ -1,22 +1,18 @@
-
-from threading import Thread
-
-from FSConnection import FSConnection
-from transport.protocol import Protocol
+from fs_connection import FSConnection
+from transport.listener import Listener
 
 
 OP_CODE_SIZE = 1
 
 LISTEN_TO = 5
 
+
 class FSServer:
     def __init__(self, host, port):
 
         self.keep_running = True
         self.connections = {}
-        self.protocol = Protocol(host, port)
-        self.protocol_thread = Thread(target=self.protocol.run)
-        self.protocol_thread.start()
+        self.listener = Listener(host, port)
 
     def run(self):
         print("[ INFO ] - Running server")
@@ -24,7 +20,7 @@ class FSServer:
         while self.keep_running:
             print("[ INFO ] - Waiting New Connections")
 
-            connection_data = self.protocol.get_new_connection()
+            connection_data = self.listener.get_new_connection()
 
             if(connection_data is None):
                 return
@@ -35,11 +31,10 @@ class FSServer:
             if not self.connections.get(address):
                 self.connections[address] = FSConnection(self.protocol, data)
 
-    def stop_running(self):
+    def stop(self):
 
         self.keep_running = False
-        self.protocol.close()
-        self.protocol_thread.join()
+        self.listener.close()
 
         for _, value in self.connections.items():
             value.close()
