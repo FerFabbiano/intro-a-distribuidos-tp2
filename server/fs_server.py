@@ -20,16 +20,18 @@ class FSServer:
         while self.keep_running:
             print("[ INFO ] - Waiting New Connections")
 
-            connection_data = self.listener.get_new_connection()
+            new_connection = self.listener.get_new_connection()
 
-            if(connection_data is None):
+            if(new_connection is None):
                 return
 
-            data, address = connection_data
-            print("[ INFO ] - Have New Connection from ", str(address))
+            print("[ INFO ] - Have New Connection from ", str(new_connection))
 
-            if not self.connections.get(address):
-                self.connections[address] = FSConnection(self.protocol, data)
+            # If we don't have a client connection with that specific address
+            # We create one
+            if not self.connections.get(new_connection.address):
+                self.connections[new_connection.address] = FSConnection(
+                    new_connection)
 
     def stop(self):
 

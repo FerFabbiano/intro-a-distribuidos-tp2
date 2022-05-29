@@ -11,9 +11,11 @@ ACK = b"OK"
 
 class Listener():
     def __init__(self, host, port):
+        # Binding TCP - This is temporary.
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.socket.bind((host, port))
         self.socket.listen(5)
+
         self.keep_running = True
         self.new_connections = Queue()
         self.thread = Thread(target=self.run)

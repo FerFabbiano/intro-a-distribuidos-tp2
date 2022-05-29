@@ -4,11 +4,21 @@
 class Connection():
     def __init__(self, address, tcpsocket):
         print("[ PC ] - New Protocol Connection")
-        self.socket = tcpsocket
-        self.address = address
+        self.__socket = tcpsocket
+        self.__address = address
 
     def push_message(self, message):
         self.messages
+
+    def __repr__(self):
+        return str(self.__address)
+
+    @property
+    def attr(self):
+        return self.__attr
+
+    def address(self):
+        self.__address
 
     @staticmethod
     def connect(address, port, controller=None):
