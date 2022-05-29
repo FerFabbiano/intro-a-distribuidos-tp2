@@ -9,11 +9,21 @@
 #    0 ------ 8 ------ 16 ------ 24 ------ 32 
 #  0 | opcode |   payload size   | checksum |
 #  4 |           sequence number            | 
-#
+# 
+# L> SEGMENTO(opcode=Data, payload_sz=4, seq=1, payload="HOLA") 
+# <R SEGMENTO(opcode=Ack, seq=1, payload_sz=0)
+# <R SEGMENTO(opcode=Data, payload_sz=4, payload="CHAU", seq=1)
+# *loss* L> SEGMENTO(opcode=Ack, seq=1, payload_sz=0)
+# <R SEGMENTO(opcode=Data, payload_sz=4, payload="CHAU", seq=1)
+# L> SEGMENTO(opcode=Ack, seq=1, payload_sz=0)
+
 import time
 
 from enum import enum
 
+HEADER_SIZE = 8
+MAX_PAYLOAD_SIZE = 500
+MAX_UDP_DATAGRAM_SIZE = HEADER_SIZE + MAX_PAYLOAD_SIZE
 
 class Opcode(Enum):
     NewConnection = 0x10
