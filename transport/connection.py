@@ -1,12 +1,13 @@
 class Connection:
+    def __init__(self, controller: RdpController):
+        self._controller = controller
+    
+    @property
+    def controller(self):
+        return self._controller
+   
     @staticmethod
     def connect(address, port):
-        pass
-
-    def _run_network(self):
-        pass
-
-    def on_event(self, event):
         pass
     
     def send(self, data: bytes):
