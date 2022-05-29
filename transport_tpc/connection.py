@@ -1,5 +1,7 @@
 "Mock Connection Object"
 
+import socket
+
 
 class Connection():
     def __init__(self, address, tcpsocket):
@@ -22,13 +24,16 @@ class Connection():
 
     @staticmethod
     def connect(address, port, controller=None):
-        pass
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.connect((address, port))
 
-    def send(self, data: bytes):
-        pass
+        return Connection((address, port), sock)
 
-    def recv(self, buffer_size: int) -> bytes:
-        pass
+    def send(self, data):
+        return self.__socket.send(data)
+
+    def recv(self, buffer_size):
+        return self.__socket.recv(buffer_size)
 
     def close(self):
         pass

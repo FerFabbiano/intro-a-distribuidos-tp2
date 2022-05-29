@@ -1,6 +1,6 @@
 from threading import Thread
 
-from fsa_server import FSServer
+from fs_server import FSServer
 
 
 HOST = "127.0.0.1"  # Standard loopback interface address (localhost)

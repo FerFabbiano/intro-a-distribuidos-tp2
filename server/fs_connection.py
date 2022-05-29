@@ -1,8 +1,26 @@
 from threading import Thread
 
+from transport.connection import Connection
+
+# Opcodes:
+#   - StartDownload = 0x10;
+#   - StartUpload = 0x11;
+#
+# UPLOAD
+#   opcode: 1 byte.
+#   filesize: 4 bytes.
+#   filename size: 1 byte.
+#   file name: <dynamic>.
+#
+# DOWNLOAD
+#   opcode: 1 byte.
+#   filename size: 1 byte.
+#   file name: <dynamic>.
+#
+
 
 class FSConnection:
-    def __init__(self, connection):
+    def __init__(self, connection: Connection):
         self.connection = connection
 
         self.thread = Thread(target=self.run)
@@ -10,6 +28,10 @@ class FSConnection:
 
     def run(self):
         print("[ INFO NEW CONNECTION] - Running the new client")
+
+        opcode = self.connection.recv(1)
+
+        print("[ INFO ] - Your clients wants to")
 
         # PROCESAR SI LA INFO ES CORRECTA
         # CASO UPLOAD
