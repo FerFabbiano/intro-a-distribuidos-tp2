@@ -10,7 +10,6 @@ class FSConnection:
 
     def run(self):
         print("[ INFO NEW CONNECTION] - Running the new client")
-        print("[ INITAL DATA ] - ", str(self.initial_payload))
 
         # PROCESAR SI LA INFO ES CORRECTA
         # CASO UPLOAD
