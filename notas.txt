@@ -1,0 +1,95 @@
+(hilo) Protocol - acepta conexiones y procesa todo lo que llega por el unico socket UDP
+(hilo) FSConnection - capa de aplicacion(transferencia de archivos)
+
+send:
+    while True:
+        send_udp_packet(data)
+slepep()250ms // esrecv_ack = updp_packet()
+
+(timer) que cada 10ms emite un tick(genera evento "tick")
+(ProtocolConnection) que puede pushear data pullear data
+
+TIMER_TICK_MS = 10
+Protocol:
+    -connections: {ProtocolConnection}
+        output_queue: Queue,
+input_queue: QUeueueue, \a
+        address: Address
+
+
+hilo_protocol:
+
+    while True:
+match evevent_event_queue.pop
+            case Tick:
+                for every ProtocolConnection:
+                    ProtocolConnection.push_event(Tick)
+            
+case PacketRecevide: ed: oi
+# chequeo si es if conexion_nueva:
+                    pusheo a new connections queue
+                else:
+                    segment = demux 
+                    if segment.is_ack:
+                        ProtocolConnection.push_event(Ack)
+                    elif segment.is_data:
+                        ProtocolConnection.push_event(SegmentReceived(segment))
+                    elif segment.is_connection_close:
+                        ProtocolConnection.push_event(ConnectionClose)
+
+hipótesis: ACK y Datos son dos tipos de mensaje distintos
+ProtocolConnection:
+    - event_queue: Queue<Event {
+        Tick,
+        SegmentReceived(Segment),
+        AckReceived(Ack),
+        ConnectionClose,
+        OnNewDataToSend,
+        PacketLoss(Segment),
+    }>
+    - send_buffer: bytes[]
+    - recv_buffer: bytes[]
+    - address: Address
+    - current_time_ms: int64 = 0
+    - in_flight_segments: Segment[]
+                
+hilo_protocol_connection:
+    while True:
+        match event_queue.pop():
+            case Tick:
+                current_time_ms += TIMER_TICK_MS
+                for segment in in_flight_segments:
+                    if segment.creation_time + TIME_TO_CONSIDER_PACKET_AS_LOSS > current_time_ms:
+                        # segment lost
+                        remove segment from in_flight_segments
+                        state = IN_PACKET_LOSS
+                        reenviar Segment
+                        ssthresh = cwnd // 2
+                        cwnd = 1
+                        add Segment to in_flight_segments with new creation_time
+
+            case SegmentReceived(Segment):
+                send_ack
+            
+            case AckReceived(Ack):
+                if state == IN_PACKET_LOSS and la red volvio a funcionar:
+                    state = NORMAL
+                
+                for segment in in_flight_segments:
+                    if segment.sequence_number == Ack:
+                        eliminar segment de in_flight_segments
+                else:
+                    # WARN: ACK dup
+                
+                if hay data en send_buffer and hay espacio en la cwnd: 
+                    segment = crear Segment con data de send_buffer
+                    mandarlo a la red
+                    in_flight_segments.append(segment)
+
+            case OnNewDataToSend:
+                while hay espacio en la cwnd (no hay muchos in_flight_segments) and state != IN_PACKET_LOSS:
+                    segment = crear Segment con data de send_buffer
+                    mandarlo a la red
+                    in_flight_segments.append(segment)
+            
+
