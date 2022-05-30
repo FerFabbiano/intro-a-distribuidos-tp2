@@ -1,6 +1,7 @@
 from threading import Thread
+from application.file_utils import FileReader
 from client.client_upload import ClientUploadConnection
-from client.client_utils import build_upload_parser
+from client.client_utils import build_upload_parser, finish_or_wait_quit
 from transport_tcp.connection import Connection
 
 HOST = "127.0.0.1"  # The server's hostname or IP address
@@ -15,6 +16,14 @@ def main():
     source_file_path = args.src
     file_name_dst = args.name
 
+    if not FileReader.file_exists(source_file_path):
+        print(
+            "[ ERROR ] - "
+            "File {} not found. Please provide a correct file path "
+            .format(source_file_path)
+        )
+        return
+
     print("[ INFO ] - Got server port: {}".format(server_port))
     print("[ INFO ] - Got source file path: {}".format(source_file_path))
     print("[ INFO ] - Got file name: {}".format(file_name_dst))
@@ -22,24 +31,23 @@ def main():
     connection = Connection.connect(HOST, server_port)
     print("[ INFO ] - Nueva conexión generada con el servidor")
 
-    client_upload = ClientUploadConnection(
+    client = ClientUploadConnection(
         connection,
         file_name_dst,
         source_file_path
     )
 
-    thread = Thread(target=client_upload.run)
+    thread = Thread(target=client.run)
     thread.start()
-    user_input = input()
 
-    while user_input != "q":
-        user_input = input()
+    finish_or_wait_quit(client)
 
     print(
         "[ INFO ] - Comienzo cierre de conexión con servidor."
         "Joineando threads."
     )
-    client_upload.close()
+
+    client.close()
     thread.join()
     print("[ INFO ] - Thread joineados exitosamente! Terminando programa.")
 

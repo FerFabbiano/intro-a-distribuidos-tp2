@@ -8,6 +8,10 @@ class FileReader():
         self.file_size = os.path.getsize(path)
 
     @staticmethod
+    def file_size(path):
+        return os.path.getsize(path)
+
+    @staticmethod
     def file_exists(path):
         return os.path.exists(path)
 
@@ -22,6 +26,13 @@ class FileReader():
 
     def close(self):
         self.file.close()
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        # make sure the dbconnection gets closed
+        self.close()
 
 
 class FileWriter():
@@ -42,3 +53,10 @@ class FileWriter():
 
     def close(self):
         self.file.close()
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        # make sure the dbconnection gets closed
+        self.close()

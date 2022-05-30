@@ -1,4 +1,6 @@
 import argparse
+import sys
+import select
 
 
 def build_upload_parser():
@@ -65,3 +67,14 @@ def build_download_parser():
         metavar="")
 
     return my_parser
+
+
+def finish_or_wait_quit(client):
+    i, o, e = select.select([sys.stdin], [], [], 1)
+
+    while i and client.keep_alive:
+        input = sys.stdin.readline().strip()
+        if (input == 'q'):
+            break
+        else:
+            i, o, e = select.select([sys.stdin], [], [], 1)

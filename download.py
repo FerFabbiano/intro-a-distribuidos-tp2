@@ -1,6 +1,8 @@
+import sys
+import select
 from threading import Thread
 from client.client_download import ClientDownloadConnection
-from client.client_utils import build_download_parser
+from client.client_utils import build_download_parser, finish_or_wait_quit
 from transport_tcp.connection import Connection
 import os
 
@@ -16,6 +18,16 @@ def main():
     destination_file_path = args.dst
     file_name_dst = args.name
 
+    # TODO: REVISAR ESTO
+    if not os.path.dirname(destination_file_path):
+        print(
+            "[ WARN ] - "
+            "Directory {} not found. Pleasea create directory "
+            "or select another"
+            .format(destination_file_path)
+        )
+        return
+
     print("[ INFO ] - Got server port: {}".format(server_port))
     print(
         "[ INFO ] - Got destination file path: {}"
@@ -26,24 +38,23 @@ def main():
     connection = Connection.connect(HOST, server_port)
     print("[ INFO ] - Nueva conexión generada con el servidor")
 
-    client_upload = ClientDownloadConnection(
+    client = ClientDownloadConnection(
         connection,
         file_name_dst,
         destination_file_path
     )
 
-    thread = Thread(target=client_upload.run)
+    thread = Thread(target=client.run)
     thread.start()
-    user_input = input()
 
-    while user_input != "q":
-        user_input = input()
+    finish_or_wait_quit(client)
 
     print(
         "[ INFO ] - Comienzo cierre de conexión con servidor."
         "Joineando threads."
     )
-    client_upload.close()
+
+    client.close()
     thread.join()
     print("[ INFO ] - Thread joineados exitosamente! Terminando programa.")
 

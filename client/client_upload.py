@@ -16,13 +16,31 @@ class ClientUploadConnection:
         self.connection = connection
         self.keep_alive = True
         self.file_name = file_name
-        self.file = FileReader(source_file_path)
+        self.source_file_path = source_file_path
 
     def run(self):
 
+        self.send_upload_request()
+
+        # Receive firts byte of opcode
+        try:
+            data = self.connection.recv(1)
+            action = Opcode(data)
+
+            if action == Opcode.Accepted:
+                self.upload_process()
+
+        except ValueError:
+            print("[ ERROR ]: Invalid OPCODE")
+
+        self.keep_alive = False
+
+    def send_upload_request(self):
         # Handshake to upload
+        file_size = FileReader.file_size(self.source_file_path)
         handshake_msg_bytes = ProtocolBuilder.upload_request(
-            self.file_name, self.file.file_size
+            self.file_name,
+            file_size
         )
 
         print(
@@ -31,40 +49,30 @@ class ClientUploadConnection:
         )
         self.connection.send(handshake_msg_bytes)
 
-        # Receive firts byte of opcode
-        data = self.connection.recv(1)
-        try:
-            action = Opcode(data).value
-
-            if action == Opcode.Accepted.value:
-                print(
-                    "[ SUCCESS ] - "
-                    "Connection accepted by server to upload file."
-                )
-                self.upload_process()
-
-        except ValueError:
-            print("[ ERROR ]: Invalid OPCODE")
-
     def upload_process(self):
 
-        while self.keep_alive and not self.file.end_of_file():
+        print(
+            "[ SUCCESS ] - "
+            "Connection accepted by server to upload file."
+        )
 
-            file_bytes = self.file.read_chunk(
-                CHUNK_SIZE
-            )
+        with FileReader(self.source_file_path) as file:
+            while self.keep_alive and not file.end_of_file():
 
-            print(
-                "[ INFO ] - Read {} bytes from file. Sending to server."
-                .format(str(len(file_bytes)))
-            )
+                file_bytes = file.read_chunk(
+                    CHUNK_SIZE
+                )
 
-            self.connection.send(file_bytes)
-            print(
-                "[ SUCCESS ] - Sent {} bytes to server."
-                .format(str(len(file_bytes)))
-            )
+                print(
+                    "[ INFO ] - Read {} bytes from file. Sending to server."
+                    .format(str(len(file_bytes)))
+                )
+
+                self.connection.send(file_bytes)
+                print(
+                    "[ SUCCESS ] - Sent {} bytes to server."
+                    .format(str(len(file_bytes)))
+                )
 
     def close(self):
         self.keep_alive = False
-        self.file.close()

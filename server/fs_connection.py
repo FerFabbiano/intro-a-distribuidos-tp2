@@ -52,10 +52,10 @@ class FSConnection:
 
         path = f'{BASE_FS_FOLDER}/{file_name}'
 
-        file = FileWriter(path, file_size)
-        while not file.end_of_file():
-            buffer = self.connection.recv(BATCH_FILE_SIZE)
-            file.write_chunk(buffer)
+        with FileWriter(path, file_size) as file:
+            while not file.end_of_file():
+                buffer = self.connection.recv(BATCH_FILE_SIZE)
+                file.write_chunk(buffer)
 
     def process_download(self):
         fn_length_raw = self.connection.recv(1)
