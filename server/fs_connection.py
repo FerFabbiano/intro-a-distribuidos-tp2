@@ -1,5 +1,5 @@
 from threading import Thread
-from application.protocol import Opcode, ProtocolBuilder
+from application.protocol import BASE_FS_FOLDER, BATCH_FILE_SIZE, Opcode, ProtocolBuilder
 
 from transport_tcp.connection import Connection
 
@@ -46,19 +46,27 @@ class FSConnection:
         fn_length_raw = self.connection.recv(1)
         fn_length = ProtocolBuilder.fn_size_parser(fn_length_raw)
 
-        file_name = self.connection.recv(fn_length)
+        file_name_raw = self.connection.recv(fn_length)
+        file_name = ProtocolBuilder.fn_parser(file_name_raw)
+
         print('[ CONNECTION ] User wants to upload ',
               file_name, ' with size: ', file_size)
 
-        # file = open('myfile.dat', 'w+')
-
-        # current_file_size = 0
-        # while(current_file_size <= file_size):
-        #     file_buffer = self.connection.recv(500)
-
+        # Accept request
         res = ProtocolBuilder.accept_request()
-
         self.connection.send(res)
+
+        with open(f'{BASE_FS_FOLDER}/{file_name}', 'wb+') as f:
+            # Replace any existing file
+            f.seek(0)
+            f.truncate()
+
+            current_file_length = 0
+            while(current_file_length < fn_length):
+                buffer = self.connection.recv(BATCH_FILE_SIZE)
+                print("Payload: ", buffer)
+                current_file_length += len(buffer)
+                f.write(buffer)
 
     def close(self):
         self.thread.join()

@@ -16,6 +16,9 @@
 from enum import Enum
 import struct
 
+BASE_FS_FOLDER = 'files'
+BATCH_FILE_SIZE = 500
+
 
 class Opcode(Enum):
     Upload = b"0"
@@ -36,6 +39,10 @@ class ProtocolBuilder:
     @staticmethod
     def fn_size_parser(byte) -> int:
         return struct.unpack('b', byte)[0]
+
+    @staticmethod
+    def fn_parser(bytes) -> str:
+        return bytes.decode('ascii')
 
     @staticmethod
     def upload_request(file_name: str, file_size: int):
