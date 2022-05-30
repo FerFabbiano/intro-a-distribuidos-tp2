@@ -58,7 +58,7 @@ class ClientUploadConnection:
                 .format(str(len(file_bytes)))
             )
 
-            # self.connection.send(file_bytes)
+            self.connection.send(file_bytes)
             print(
                 "[ SUCCESS ] - Sent {} bytes to server."
                 .format(str(len(file_bytes)))

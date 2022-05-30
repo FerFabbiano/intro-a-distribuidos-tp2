@@ -62,10 +62,12 @@ class FSConnection:
             f.truncate()
 
             current_file_length = 0
-            while(current_file_length < fn_length):
+            while(current_file_length < file_size):
+
                 buffer = self.connection.recv(BATCH_FILE_SIZE)
-                print("Payload: ", buffer)
+
                 current_file_length += len(buffer)
+
                 f.write(buffer)
 
     def close(self):
