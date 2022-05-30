@@ -29,7 +29,6 @@ def main():
     client_upload = ClientDownloadConnection(
         connection,
         file_name_dst,
-        os.path.getsize(destination_file_path),
         destination_file_path
     )
 

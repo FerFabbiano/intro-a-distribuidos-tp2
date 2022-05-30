@@ -1,6 +1,5 @@
-import os
 from threading import Thread
-from application.file_utils import FileWriter
+from application.file_utils import FileReader, FileWriter
 from application.protocol import Opcode, ProtocolBuilder
 from server.config import BASE_FS_FOLDER, BATCH_FILE_SIZE
 
@@ -17,29 +16,21 @@ class FSConnection:
     def run(self):
         print("[ INFO NEW CONNECTION] - Running the new client")
 
+        opcode = self.connection.recv(1)
         try:
-            opcode = self.connection.recv(1)
             action = Opcode(opcode)
 
             print("[ INFO ] - Your clients wants to", str(action))
 
             if (action == Opcode.Upload):
                 self.process_upload()
+            elif (action == Opcode.Download):
+                self.process_download()
 
         except ValueError:
-            print("[ CONNECTION ]: Invalid OPCODE")
+            print("[ CONNECTION ]: Invalid OPCODE ", opcode)
         finally:
             self.connection.close()
-        # PROCESAR SI LA INFO ES CORRECTA
-        # CASO UPLOAD
-        # file_len = self.initial_payload[0:3]
-        # file_name_len = self.initial_payload[4]
-        # file_name = self.initial_payload[5:]
-
-        # if file_len <= 0 or file_name_len <= 0:
-        # INFORMAR EL ERROR AL CLIENTE Y CERRAR LA CONEXION
-
-        # Y CONTESTARLE AL CLIENTE QUE ACEPTAMOS SU CONEXION
 
     def process_upload(self):
 
@@ -73,25 +64,27 @@ class FSConnection:
         file_name_raw = self.connection.recv(fn_length)
         file_name = ProtocolBuilder.fn_parser(file_name_raw)
 
-        print('[ CONNECTION ] User wants to download ',
-              file_name)
+        print('[ CONNECTION ] User wants to download ', file_name)
 
         path = f'{BASE_FS_FOLDER}/{file_name}'
 
-        if not os.path.exists(path):
+        if not FileReader.file_exists(path):
             res = ProtocolBuilder.file_not_exists()
             self.connection.send(res)
             return
 
-        file_size = os.path.getsize(path)
-        res = ProtocolBuilder.accept_upload_request(file_size)
+        file = FileReader(path)
+        res = ProtocolBuilder.accept_download_request(file.file_size)
         self.connection.send(res)
 
-        file = FileWriter(path, file_size)
-
+        print('REQUEST ACEPTADO')
         while not file.end_of_file():
-            buffer = self.connection.recv(BATCH_FILE_SIZE)
-            file.write_chunk(buffer)
+
+            buffer = file.read_chunk(
+                BATCH_FILE_SIZE
+            )
+
+            self.connection.send(buffer)
 
         file.close()
 

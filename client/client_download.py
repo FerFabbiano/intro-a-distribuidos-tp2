@@ -10,13 +10,11 @@ class ClientDownloadConnection:
         self,
         connection: Connection,
         file_name: str,
-        file_size: int,
         destination_file_path: str,
     ):
         self.connection = connection
         self.keep_alive = True
         self.file_name = file_name
-        self.file_size = file_size
         self.destination_file_path = destination_file_path
 
     def run(self):
@@ -62,11 +60,11 @@ class ClientDownloadConnection:
 
         if not os.path.dirname(self.destination_file_path):
             print(
-                    "[ WARN ] - "
-                    "Directory {} not found. Pleasea create directory "
-                    "or select another"
-                    .format(self.file_name)
-                )
+                "[ WARN ] - "
+                "Directory {} not found. Pleasea create directory "
+                "or select another"
+                .format(self.file_name)
+            )
             return
 
         file = FileWriter(self.destination_file_path, self.file_size)

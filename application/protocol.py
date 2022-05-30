@@ -44,8 +44,8 @@ class ProtocolBuilder:
         return bytes.decode('ascii')
 
     @staticmethod
-    def accept_upload_request(file_size: int):
-        opcode = Opcode.Upload.value
+    def accept_download_request(file_size: int):
+        opcode = Opcode.Accepted.value
         file_size_bytes = struct.pack("!I", file_size)
         return (
             opcode +

@@ -7,6 +7,10 @@ class FileReader():
         self.read_offset = 0
         self.file_size = os.path.getsize(path)
 
+    @staticmethod
+    def file_exists(path):
+        return os.path.exists(path)
+
     def read_chunk(self, chunk_size: int):
         self.file.seek(self.read_offset)
         buffer = self.file.read(chunk_size)
@@ -22,7 +26,7 @@ class FileReader():
 
 class FileWriter():
     def __init__(self, path, file_size):
-        self.file = open(path, "rb+")
+        self.file = open(path, "wb+")
         self.file.seek(0)
         self.file.truncate()
 
