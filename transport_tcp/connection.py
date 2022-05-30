@@ -36,4 +36,4 @@ class Connection():
         return self.__socket.recv(buffer_size)
 
     def close(self):
-        pass
+        self.__socket.close()

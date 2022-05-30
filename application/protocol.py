@@ -15,9 +15,20 @@
 #   file name: <dynamic>.
 
 from enum import Enum
+import struct
 
 
 class Opcode(Enum):
     Upload = b'0'
     Download = b'1'
     Accepted = b'2'
+
+
+class ProtocolBuilder():
+    @staticmethod
+    def accept_request():
+        return Opcode.Accepted.value
+
+    'bytes is a size 4 unsigned integer'
+    def file_size_parser(bytes) -> int:
+        return struct.unpack('!I', bytes)
