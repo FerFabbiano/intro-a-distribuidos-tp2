@@ -18,5 +18,7 @@ from enum import Enum
 
 
 class Opcode(Enum):
-    Upload = 0x10
-    Download = 0x11
+    Upload = b'0'
+    Download = b'1'
+    UploadAccepted = b'2'
+    DownloadAccepted = b'3'
