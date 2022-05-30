@@ -57,3 +57,14 @@ class ProtocolBuilder:
             file_name_size_bytes +
             bytes(file_name, "ascii")
         )
+
+    @staticmethod
+    def download_request(file_name: str):
+        opcode = Opcode.Download.value
+        file_name_size_bytes = struct.pack("b", len(file_name))
+
+        return (
+            opcode +
+            file_name_size_bytes +
+            bytes(file_name, "ascii")
+        )

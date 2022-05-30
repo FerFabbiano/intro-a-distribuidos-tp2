@@ -25,7 +25,10 @@ class ClientUploadConnection:
             self.file_name, self.file_size
         )
 
-        print("[ INFO ] - Handshake msg: {}".format(handshake_msg_bytes))
+        print(
+            "[ INFO ] - Upload handshake msg: {}"
+            .format(handshake_msg_bytes)
+        )
         self.connection.send(handshake_msg_bytes)
 
         # Receive firts byte of opcode

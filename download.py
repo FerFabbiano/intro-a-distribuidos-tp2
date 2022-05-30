@@ -1,6 +1,6 @@
 from threading import Thread
-from client.client_upload import ClientUploadConnection
-from client.client_utils import build_parser
+from client.client_download import ClientDownloadConnection
+from client.client_utils import build_download_parser
 from transport_tcp.connection import Connection
 import os
 
@@ -10,24 +10,27 @@ BUFFER_SIZE = 508
 
 
 def main():
-    args = build_parser().parse_args()
+    args = build_download_parser().parse_args()
 
     server_port = int(args.port)
-    source_file_path = args.src
+    destination_file_path = args.dst
     file_name_dst = args.name
 
     print("[ INFO ] - Got server port: {}".format(server_port))
-    print("[ INFO ] - Got source file path: {}".format(source_file_path))
+    print(
+        "[ INFO ] - Got destination file path: {}"
+        .format(destination_file_path)
+    )
     print("[ INFO ] - Got file name: {}".format(file_name_dst))
 
     connection = Connection.connect(HOST, server_port)
     print("[ INFO ] - Nueva conexión generada con el servidor")
 
-    client_upload = ClientUploadConnection(
+    client_upload = ClientDownloadConnection(
         connection,
         file_name_dst,
-        os.path.getsize(source_file_path),
-        source_file_path
+        os.path.getsize(destination_file_path),
+        destination_file_path
     )
 
     thread = Thread(target=client_upload.run)
