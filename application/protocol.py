@@ -49,3 +49,7 @@ class ProtocolBuilder:
             file_name_size_bytes +
             bytes(file_name, "ascii")
         )
+
+    @staticmethod
+    def upload_file_chunk(file_chunk: bytes):
+        return file_chunk
