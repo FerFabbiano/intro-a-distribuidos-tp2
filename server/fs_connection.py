@@ -1,6 +1,5 @@
-
 from threading import Thread
-from application.protocol import Opcode, ProtocolBuilder, ResponseBuilder
+from application.protocol import Opcode, ProtocolBuilder
 
 from transport_tcp.connection import Connection
 
@@ -21,11 +20,11 @@ class FSConnection:
 
             print("[ INFO ] - Your clients wants to", str(action))
 
-            if (action == Opcode.Upload):
+            if action == Opcode.Upload:
                 self.upload()
 
         except ValueError:
-            print('[ CONNECTION ]: Invalid OPCODE')
+            print("[ CONNECTION ]: Invalid OPCODE")
         finally:
             self.connection.close()
         # PROCESAR SI LA INFO ES CORRECTA
