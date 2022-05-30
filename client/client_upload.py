@@ -10,14 +10,14 @@ class ClientUploadConnection:
         connection: Connection,
         file_name: str,
         file_size: int,
-        full_path_to_file: str,
+        source_file_path: str,
     ):
         self.connection = connection
         self.keep_alive = True
         self.handshake = False
         self.file_name = file_name
         self.file_size = file_size
-        self.full_path_to_file = full_path_to_file
+        self.source_file_path = source_file_path
 
     def run(self):
         # Handshake to upload
@@ -45,12 +45,15 @@ class ClientUploadConnection:
 
     def upload_process(self):
         file_read_offset = 0
-        print("[ INFO ] - Reading file: {}".format(self.file_name))
+        print(
+            "[ INFO ] - Reading file from path: {}"
+            .format(self.source_file_path)
+        )
 
         while self.keep_alive and (file_read_offset < self.file_size):
 
             file_bytes = read_file_chunk(
-                self.full_path_to_file,
+                self.source_file_path,
                 file_read_offset
             )
             print(
