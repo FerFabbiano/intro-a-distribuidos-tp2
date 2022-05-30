@@ -1,4 +1,6 @@
-from .rdp.rdp_controller import RdpController, StopAndWaitRdpController
+import time
+
+from .rdp import RdpController, StopAndWaitRdpController
 from .raw_connection import RawConnection
 from transport.segment import Segment, Opcode
 
@@ -36,10 +38,37 @@ class Connection:
         raw_connection = RawConnection.connect(host, port)
         controller = StopAndWaitRdpController(raw_connection)
         assert controller.try_send_segment(Segment(Opcode.NewConnection, bytes()))
-        data, client_address = raw_connection.socket.recvfrom(65536)
-        ack = Segment.from_datagram(data)
-        assert (host, port) == client_address and data.opcode == Opcode.Ack
-        return Connection(controller)
+        import threading
+        self = Connection(controller)
+        threading.Thread(target=self._run_timers).start()
+        threading.Thread(target=self._run_network).start()
+        return self
+    
+    def _run_timers(self):
+        while self.is_alive():
+            time.sleep(0.010)
+            self.on_tick(time.time())
+
+    def _run_network(self):
+        while self.is_alive():
+            msg, client_address = self._controller._network.socket.recvfrom(65536)
+            # validar client_address
+            segment = Segment.from_datagram(msg)
+            if not segment.is_checksum_correct():
+                print("[Connection.run_network] Segment with invalid checksum: ", segment)
+                continue
+            print(segment)
+
+            if segment.opcode == Opcode.NewConnectionReply:    
+                self.on_new_connection_reply(segment)
+            elif segment.opcode == Opcode.Data:
+                self.on_data_received(segment)
+            elif segment.opcode == Opcode.Ack:
+                self.on_ack_received(segment)
+            elif segment.opcode == Opcode.Close:
+                self.on_close(segment)
+            else:
+                print("[Listener.run_network] Unknown opcode: ", segment)
     
     def send(self, data: bytes) -> int:
         part = data[0:self._controller.mss]

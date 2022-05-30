@@ -4,7 +4,7 @@ import socket
 from threading import Thread
 from queue import Queue
 from .segment import Segment, Opcode
-from .rdp.rdp_controller import StopAndWaitRdpController
+from .rdp import StopAndWaitRdpController
 from .raw_connection import RawConnection
 from .connection import Connection
 
@@ -39,6 +39,7 @@ class Listener:
                 if not segment.is_checksum_correct():
                     print("[Listener.run_network] Segment with invalid checksum: ", segment)
                     continue
+                print(segment)
 
                 if segment.opcode == Opcode.NewConnection:
                     print("[Listener.run_network] New connection from: ", client_address)
