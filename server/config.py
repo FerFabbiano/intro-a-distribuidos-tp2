@@ -1,0 +1,2 @@
+BASE_FS_FOLDER = "files"
+BATCH_FILE_SIZE = 500

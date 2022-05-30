@@ -16,9 +16,6 @@
 from enum import Enum
 import struct
 
-BASE_FS_FOLDER = 'files'
-BATCH_FILE_SIZE = 500
-
 
 class Opcode(Enum):
     Upload = b"0"
