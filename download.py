@@ -1,5 +1,3 @@
-import sys
-import select
 from threading import Thread
 from client.client_download import ClientDownloadConnection
 from client.client_utils import build_download_parser, finish_or_wait_quit
@@ -62,24 +60,3 @@ def main():
 
 
 main()
-
-
-# def main():
-#     # while(True):
-#     # s.sendto(b"NCLIENTE NUEVO", (HOST, PORT))
-#     connection = Connection.connect(HOST, PORT)
-#     print("[ NUEVA CONEXION ]")
-#     sleep(100000)
-#     print(str(connection))
-#     # (recvData, serverAddress) = s.recvfrom(BUFFER_SIZE)
-
-#     # Poner validacion de que solo el servidor me mande mensajes
-
-#     # s.sendto(b"C", (HOST, PORT))
-#     # (recvData, serverAddress) = s.recvfrom(BUFFER_SIZE)
-
-#     # print("[ PROTOCOL ACK ] - ", str(recvData))
-
-
-# main()
-# print(f"Received {data!r}")
