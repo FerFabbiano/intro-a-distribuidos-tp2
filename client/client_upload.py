@@ -15,7 +15,6 @@ class ClientUploadConnection:
     ):
         self.connection = connection
         self.keep_alive = True
-        self.handshake = False
         self.file_name = file_name
         self.file = FileReader(source_file_path)
 

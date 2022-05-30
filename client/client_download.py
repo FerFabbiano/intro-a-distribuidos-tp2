@@ -1,8 +1,8 @@
 from application.file_utils import FileWriter
 from application.protocol import Opcode, ProtocolBuilder
-import os
 from server.config import BATCH_FILE_SIZE
 from transport_tcp.connection import Connection
+import os
 
 
 class ClientDownloadConnection:
@@ -15,7 +15,6 @@ class ClientDownloadConnection:
     ):
         self.connection = connection
         self.keep_alive = True
-        self.handshake = False
         self.file_name = file_name
         self.file_size = file_size
         self.destination_file_path = destination_file_path
@@ -61,8 +60,14 @@ class ClientDownloadConnection:
     def download_process(self):
         print("[ INFO ] - Downloading file from server")
 
-        if not os.path.exists(self.destination_file_path):
-            os.makedirs(self.destination_file_path)
+        if not os.path.dirname(self.destination_file_path):
+            print(
+                    "[ WARN ] - "
+                    "Directory {} not found. Pleasea create directory "
+                    "or select another"
+                    .format(self.file_name)
+                )
+            return
 
         file = FileWriter(self.destination_file_path, self.file_size)
         while not file.end_of_file():
