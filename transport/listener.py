@@ -1,5 +1,6 @@
 import time
 import socket
+import select
 
 from threading import Thread
 from queue import Queue
@@ -34,6 +35,10 @@ class Listener:
     def _run_network(self):
         while self.keep_running:
             try:
+                ready = select.select([self.socket], [], [], 0.5)
+                if not ready[0]:
+                    continue
+                
                 msg, client_address = self.socket.recvfrom(BUFFER_SIZE)
                 segment = Segment.from_datagram(msg)
                 if not segment.is_checksum_correct():
@@ -65,6 +70,7 @@ class Listener:
                         print("[Listener.run_network] Unknown opcode: ", segment)
             except ValueError as e:
                 print("[Listener.run_network] Exception occured: ", e)
+        self.socket.close()
     
     def _run_timers(self):
         while self.keep_running:
@@ -90,7 +96,11 @@ class Listener:
             raise Exception("The server is not running!")
 
         self.keep_running = False
+        print("after self.keep_running = False")
         self.new_connections.put(None)
-        self.socket.close()
+        print("after self.new_connections.put(None)")
         self.timers_thread.join()
+        print("after self.timers_thread.join()")
         self.network_thread.join()
+        print("after self.network_thread.join()")
+        
