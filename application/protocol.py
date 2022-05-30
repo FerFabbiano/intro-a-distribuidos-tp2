@@ -20,5 +20,4 @@ from enum import Enum
 class Opcode(Enum):
     Upload = b'0'
     Download = b'1'
-    UploadAccepted = b'2'
-    DownloadAccepted = b'3'
+    Accepted = b'2'
