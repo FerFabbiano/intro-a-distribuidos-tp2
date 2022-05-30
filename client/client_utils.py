@@ -1,8 +1,6 @@
 import argparse
 
 
-HOST = "127.0.0.1"  # The server's hostname or IP address
-PORT = 65432  # The port used by the server
 CHUNK_SIZE = 500
 
 
@@ -40,22 +38,9 @@ def read_file(path):
     return 0
 
 
-def main():
-    args = build_parser().parse_args()
+def read_file_chunk(path: str, offset: int):
+    file = open(path, "rb")
 
-    server_port = args.port
-    source_file_path = args.src
-    file_name = args.name
-
-    print("[ INFO ] - Got server port: {}".format(server_port))
-    print("[ INFO ] - Got source file path: {}".format(source_file_path))
-    print("[ INFO ] - Got file name: {}".format(file_name))
-
-    print("[ INFO ] - Reading file: {}".format(args.name))
-    read_file(source_file_path + "/" + file_name)
-    print("[ SUCCESS ] - Finish reading file: {}".format(args.name))
-
-    return 0
-
-
-main()
+    # Read from offset
+    file.seek(offset)
+    return file.read(CHUNK_SIZE)

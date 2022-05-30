@@ -1,5 +1,3 @@
-
-
 from threading import Thread
 from application.protocol import Opcode, ProtocolBuilder
 
@@ -26,7 +24,7 @@ class FSConnection:
                 self.process_upload()
 
         except ValueError:
-            print('[ CONNECTION ]: Invalid OPCODE')
+            print("[ CONNECTION ]: Invalid OPCODE")
         finally:
             self.connection.close()
         # PROCESAR SI LA INFO ES CORRECTA
@@ -58,9 +56,9 @@ class FSConnection:
         # while(current_file_size <= file_size):
         #     file_buffer = self.connection.recv(500)
 
-        # res = ProtocolBuilder.accept_request()
+        res = ProtocolBuilder.accept_request()
 
-        # self.connection.send(res)
+        self.connection.send(res)
 
     def close(self):
         self.thread.join()

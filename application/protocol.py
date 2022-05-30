@@ -1,4 +1,3 @@
-
 # Opcodes:
 #   - StartDownload = 0x10;
 #   - StartUpload = 0x11;
@@ -19,12 +18,12 @@ import struct
 
 
 class Opcode(Enum):
-    Upload = b'0'
-    Download = b'1'
-    Accepted = b'2'
+    Upload = b"0"
+    Download = b"1"
+    Accepted = b"2"
 
 
-class ProtocolBuilder():
+class ProtocolBuilder:
     @staticmethod
     def accept_request():
         return Opcode.Accepted.value
@@ -37,3 +36,16 @@ class ProtocolBuilder():
     @staticmethod
     def fn_size_parser(byte) -> int:
         return struct.unpack('b', byte)[0]
+
+    @staticmethod
+    def upload_request(file_name: str, file_size: int):
+        opcode = Opcode.Upload.value
+        file_size_bytes = struct.pack("!I", file_size)
+        file_name_size_bytes = struct.pack("b", len(file_name))
+
+        return (
+            opcode +
+            file_size_bytes +
+            file_name_size_bytes +
+            bytes(file_name, "ascii")
+        )
