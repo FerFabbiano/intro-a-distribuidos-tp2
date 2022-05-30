@@ -1,9 +1,6 @@
 import argparse
 
 
-CHUNK_SIZE = 500
-
-
 def build_upload_parser():
     my_parser = argparse.ArgumentParser()
 
@@ -68,29 +65,3 @@ def build_download_parser():
         metavar="")
 
     return my_parser
-
-
-def read_file(path):
-    file = open(path, "rb")
-
-    chunk = file.read(CHUNK_SIZE)
-
-    while chunk:
-        print(chunk)
-        chunk = file.read(CHUNK_SIZE)
-
-    return 0
-
-
-def read_file_chunk(path: str, offset: int):
-    file = open(path, "rb")
-
-    # Read from offset
-    file.seek(offset)
-
-    chunk = file.read(CHUNK_SIZE)
-
-    # Close file
-    file.close()
-
-    return chunk

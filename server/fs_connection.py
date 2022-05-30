@@ -1,5 +1,6 @@
 import os
 from threading import Thread
+from application.file_utils import FileWriter
 from application.protocol import Opcode, ProtocolBuilder
 from server.config import BASE_FS_FOLDER, BATCH_FILE_SIZE
 
@@ -71,6 +72,35 @@ class FSConnection:
                 current_file_length += len(buffer)
 
                 f.write(buffer)
+
+    def process_download(self):
+        fn_length_raw = self.connection.recv(1)
+        fn_length = ProtocolBuilder.fn_size_parser(fn_length_raw)
+
+        file_name_raw = self.connection.recv(fn_length)
+        file_name = ProtocolBuilder.fn_parser(file_name_raw)
+
+        print('[ CONNECTION ] User wants to download ',
+              file_name)
+
+        path = f'{BASE_FS_FOLDER}/{file_name}'
+
+        if not os.path.exists(path):
+            res = ProtocolBuilder.file_not_exists()
+            self.connection.send(res)
+            return
+
+        file_size = os.path.getsize(path)
+        res = ProtocolBuilder.accept_upload_request(file_size)
+        self.connection.send(res)
+
+        file = FileWriter(path, file_size)
+
+        while not file.end_of_file():
+            buffer = self.connection.recv(BATCH_FILE_SIZE)
+            file.write_chunk(buffer)
+
+        file.close()
 
     def close(self):
         self.thread.join()

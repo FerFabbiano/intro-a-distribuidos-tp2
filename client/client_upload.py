@@ -1,7 +1,9 @@
+from application.file_utils import FileReader
 from application.protocol import Opcode, ProtocolBuilder
-from client.client_utils import read_file_chunk
 
 from transport_tcp.connection import Connection
+
+CHUNK_SIZE = 500
 
 
 class ClientUploadConnection:
@@ -16,13 +18,13 @@ class ClientUploadConnection:
         self.keep_alive = True
         self.handshake = False
         self.file_name = file_name
-        self.file_size = file_size
-        self.source_file_path = source_file_path
+        self.file = FileReader(source_file_path, file_size)
 
     def run(self):
+
         # Handshake to upload
         handshake_msg_bytes = ProtocolBuilder.upload_request(
-            self.file_name, self.file_size
+            self.file_name, self.file.file_size
         )
 
         print(
@@ -47,18 +49,13 @@ class ClientUploadConnection:
             print("[ ERROR ]: Invalid OPCODE")
 
     def upload_process(self):
-        file_read_offset = 0
-        print(
-            "[ INFO ] - Reading file from path: {}"
-            .format(self.source_file_path)
-        )
 
-        while self.keep_alive and (file_read_offset < self.file_size):
+        while self.keep_alive and not self.file.end_of_file():
 
-            file_bytes = read_file_chunk(
-                self.source_file_path,
-                file_read_offset
+            file_bytes = self.file.read_chunk(
+                CHUNK_SIZE
             )
+
             print(
                 "[ INFO ] - Read {} bytes from file. Sending to server."
                 .format(str(len(file_bytes)))
@@ -70,11 +67,6 @@ class ClientUploadConnection:
                 .format(str(len(file_bytes)))
             )
 
-            file_read_offset += len(file_bytes)
-            print(
-                "Total bytes read from file: {}"
-                .format(str(file_read_offset))
-            )
-
     def close(self):
         self.keep_alive = False
+        self.file.close()
