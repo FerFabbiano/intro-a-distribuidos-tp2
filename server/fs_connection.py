@@ -1,5 +1,7 @@
+import os
 from threading import Thread
-from application.protocol import BASE_FS_FOLDER, BATCH_FILE_SIZE, Opcode, ProtocolBuilder
+from application.protocol import Opcode, ProtocolBuilder
+from server.config import BASE_FS_FOLDER, BATCH_FILE_SIZE
 
 from transport_tcp.connection import Connection
 

@@ -1,10 +1,7 @@
+import os
+from server.config import BASE_FS_FOLDER
 from server.fs_connection import FSConnection
 from transport_tcp.listener import Listener
-
-
-OP_CODE_SIZE = 1
-
-LISTEN_TO = 5
 
 
 class FSServer:
@@ -12,6 +9,10 @@ class FSServer:
 
         self.keep_running = True
         self.connections = {}
+
+        if not os.path.exists(BASE_FS_FOLDER):
+            os.makedirs(BASE_FS_FOLDER)
+
         self.listener = Listener(host, port)
 
     def run(self):
@@ -30,7 +31,8 @@ class FSServer:
             # If we don't have a client connection with that specific address
             # We create one
             if not self.connections.get(new_connection.address):
-                self.connections[new_connection.address] = FSConnection(new_connection)
+                self.connections[new_connection.address] = FSConnection(
+                    new_connection)
 
     def stop(self):
 
