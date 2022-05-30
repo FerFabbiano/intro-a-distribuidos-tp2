@@ -1,8 +1,11 @@
+import os
+
+
 class FileReader():
-    def __init__(self, path, file_size):
+    def __init__(self, path):
         self.file = open(path, "rb")
         self.read_offset = 0
-        self.file_size = file_size
+        self.file_size = os.path.getsize(path)
 
     def read_chunk(self, chunk_size: int):
         self.file.seek(self.read_offset)

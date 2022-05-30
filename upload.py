@@ -2,7 +2,6 @@ from threading import Thread
 from client.client_upload import ClientUploadConnection
 from client.client_utils import build_upload_parser
 from transport_tcp.connection import Connection
-import os
 
 HOST = "127.0.0.1"  # The server's hostname or IP address
 PORT = 65433  # The port used by the server
@@ -26,7 +25,6 @@ def main():
     client_upload = ClientUploadConnection(
         connection,
         file_name_dst,
-        os.path.getsize(source_file_path),
         source_file_path
     )
 

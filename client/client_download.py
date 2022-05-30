@@ -1,3 +1,4 @@
+from application.file_utils import FileWriter
 from application.protocol import Opcode, ProtocolBuilder
 import os
 from server.config import BATCH_FILE_SIZE
@@ -63,24 +64,10 @@ class ClientDownloadConnection:
         if not os.path.exists(self.destination_file_path):
             os.makedirs(self.destination_file_path)
 
-        bytes_downloaded = 0
-        while self.keep_alive and (bytes_downloaded < self.file_size):
-            with open(
-                    f'{self.destination_file_path}/{self.file_name}',
-                    'wb+'
-                    ) as f:
-
-                # Replace any existing file
-                f.seek(0)
-                f.truncate()
-
-                while(bytes_downloaded < self.file_size):
-
-                    buffer = self.connection.recv(BATCH_FILE_SIZE)
-
-                    bytes_downloaded += len(buffer)
-
-                    f.write(buffer)
+        file = FileWriter(self.destination_file_path, self.file_size)
+        while not file.end_of_file():
+            buffer = self.connection.recv(BATCH_FILE_SIZE)
+            file.write_chunk(buffer)
 
     def close(self):
         self.keep_alive = False

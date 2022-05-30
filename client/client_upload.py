@@ -11,14 +11,13 @@ class ClientUploadConnection:
         self,
         connection: Connection,
         file_name: str,
-        file_size: int,
         source_file_path: str,
     ):
         self.connection = connection
         self.keep_alive = True
         self.handshake = False
         self.file_name = file_name
-        self.file = FileReader(source_file_path, file_size)
+        self.file = FileReader(source_file_path)
 
     def run(self):
 
