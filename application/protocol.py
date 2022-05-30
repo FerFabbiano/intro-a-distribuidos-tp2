@@ -21,6 +21,7 @@ class Opcode(Enum):
     Upload = b"0"
     Download = b"1"
     Accepted = b"2"
+    FileNotFound = b"3"
 
 
 class ProtocolBuilder:
@@ -41,6 +42,15 @@ class ProtocolBuilder:
     @staticmethod
     def fn_parser(bytes) -> str:
         return bytes.decode('ascii')
+
+    @staticmethod
+    def accept_upload_request(file_size: int):
+        opcode = Opcode.Upload.value
+        file_size_bytes = struct.pack("!I", file_size)
+        return (
+            opcode +
+            file_size_bytes
+        )
 
     @staticmethod
     def upload_request(file_name: str, file_size: int):
