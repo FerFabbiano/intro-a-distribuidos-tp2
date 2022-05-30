@@ -25,8 +25,10 @@ def main():
 
     full_path_to_file = source_file_path + "/" + file_name
     client_upload = ClientUploadConnection(
-        connection, file_name, os.path.getsize(
-            full_path_to_file), full_path_to_file
+        connection,
+        file_name,
+        os.path.getsize(full_path_to_file),
+        full_path_to_file
     )
 
     thread = Thread(target=client_upload.run)
@@ -36,14 +38,13 @@ def main():
     while user_input != "q":
         user_input = input()
 
-    print("[ INFO ] - Comienzo cierre de conexión con servidor. Joineando threads.")
+    print(
+        "[ INFO ] - Comienzo cierre de conexión con servidor."
+        "Joineando threads."
+    )
     client_upload.close()
     thread.join()
     print("[ INFO ] - Thread joineados exitosamente! Terminando programa.")
-
-    # print("[ INFO ] - Reading file: {}".format(args.name))
-    # read_file(source_file_path + "/" + file_name)
-    # print("[ SUCCESS ] - Finish reading file: {}".format(args.name))
 
     return 0
 
