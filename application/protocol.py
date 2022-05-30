@@ -21,6 +21,7 @@ class Opcode(Enum):
     Upload = b"0"
     Download = b"1"
     Accepted = b"2"
+    FileNotFound = b"3"
 
 
 class ProtocolBuilder:

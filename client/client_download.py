@@ -1,6 +1,6 @@
-from time import sleep
 from application.protocol import Opcode, ProtocolBuilder
-
+import os
+from server.config import BATCH_FILE_SIZE
 from transport_tcp.connection import Connection
 
 
@@ -41,7 +41,18 @@ class ClientDownloadConnection:
                     "[ SUCCESS ] - "
                     "Connection accepted by server to download file."
                 )
+
+                # Get file size
+                fs_length_raw = self.connection.recv(4)
+                file_size = ProtocolBuilder.file_size_parser(fs_length_raw)
+                self.file_size = file_size
+
                 self.download_process()
+            elif action == Opcode.FileNotFound.value:
+                print(
+                    "[ WARN ] - "
+                    "File {} not found in server".format(self.file_name)
+                )
 
         except ValueError:
             print("[ ERROR ]: Invalid OPCODE")
@@ -49,8 +60,27 @@ class ClientDownloadConnection:
     def download_process(self):
         print("[ INFO ] - Downloading file from server")
 
-        while self.keep_alive:
-            sleep(20)
+        if not os.path.exists(self.destination_file_path):
+            os.makedirs(self.destination_file_path)
+
+        bytes_downloaded = 0
+        while self.keep_alive and (bytes_downloaded < self.file_size):
+            with open(
+                    f'{self.destination_file_path}/{self.file_name}',
+                    'wb+'
+                    ) as f:
+
+                # Replace any existing file
+                f.seek(0)
+                f.truncate()
+
+                while(bytes_downloaded < self.file_size):
+
+                    buffer = self.connection.recv(BATCH_FILE_SIZE)
+
+                    bytes_downloaded += len(buffer)
+
+                    f.write(buffer)
 
     def close(self):
         self.keep_alive = False
