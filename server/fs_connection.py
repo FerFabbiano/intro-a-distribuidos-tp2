@@ -59,19 +59,12 @@ class FSConnection:
         res = ProtocolBuilder.accept_request()
         self.connection.send(res)
 
-        with open(f'{BASE_FS_FOLDER}/{file_name}', 'wb+') as f:
-            # Replace any existing file
-            f.seek(0)
-            f.truncate()
+        path = f'{BASE_FS_FOLDER}/{file_name}'
 
-            current_file_length = 0
-            while(current_file_length < file_size):
-
-                buffer = self.connection.recv(BATCH_FILE_SIZE)
-
-                current_file_length += len(buffer)
-
-                f.write(buffer)
+        file = FileWriter(path, file_size)
+        while not file.end_of_file():
+            buffer = self.connection.recv(BATCH_FILE_SIZE)
+            file.write_chunk(buffer)
 
     def process_download(self):
         fn_length_raw = self.connection.recv(1)
