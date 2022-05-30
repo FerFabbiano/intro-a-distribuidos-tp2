@@ -43,4 +43,10 @@ def read_file_chunk(path: str, offset: int):
 
     # Read from offset
     file.seek(offset)
-    return file.read(CHUNK_SIZE)
+
+    chunk = file.read(CHUNK_SIZE)
+
+    # Close file
+    file.close()
+
+    return chunk
