@@ -28,14 +28,15 @@ class ProtocolBuilder:
     def accept_request():
         return Opcode.Accepted.value
 
-    'bytes is a size 4 unsigned integer'
+    "bytes is a size 4 unsigned integer"
+
     @staticmethod
     def file_size_parser(bytes) -> int:
-        return struct.unpack('!I', bytes)[0]
+        return struct.unpack("!I", bytes)[0]
 
     @staticmethod
     def fn_size_parser(byte) -> int:
-        return struct.unpack('b', byte)[0]
+        return struct.unpack("b", byte)[0]
 
     @staticmethod
     def upload_request(file_name: str, file_size: int):
@@ -44,12 +45,5 @@ class ProtocolBuilder:
         file_name_size_bytes = struct.pack("b", len(file_name))
 
         return (
-            opcode +
-            file_size_bytes +
-            file_name_size_bytes +
-            bytes(file_name, "ascii")
+            opcode + file_size_bytes + file_name_size_bytes + bytes(file_name, "ascii")
         )
-
-    @staticmethod
-    def upload_file_chunk(file_chunk: bytes):
-        return file_chunk

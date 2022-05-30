@@ -31,7 +31,6 @@ class ClientUploadConnection:
 
         # Receive firts byte of opcode
         data = self.connection.recv(1)
-        print(data)
         try:
             action = Opcode(data).value
 
@@ -51,19 +50,16 @@ class ClientUploadConnection:
         print("[ INFO ] - Reading file: {}".format(self.file_name))
         while self.keep_alive:
 
-            file_bytes = read_file_chunk(
-                self.full_path_to_file, file_read_offset)
+            file_bytes = read_file_chunk(self.full_path_to_file, file_read_offset)
             print(
                 "[ INFO ] - Read {} bytes from file: {}. Sending to server.".format(
                     str(file_read_offset), self.file_name
                 )
             )
 
-            # self.connection.send(Opcode.Upload.value + file_bytes)
+            self.connection.send(file_bytes)
             print(
-                "[ SUCCESS ] - Sent {} bytes to server.".format(
-                    str(file_read_offset)
-                )
+                "[ SUCCESS ] - Sent {} bytes to server.".format(str(file_read_offset))
             )
 
             file_read_offset += len(file_bytes)
