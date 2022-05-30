@@ -45,5 +45,8 @@ class ProtocolBuilder:
         file_name_size_bytes = struct.pack("b", len(file_name))
 
         return (
-            opcode + file_size_bytes + file_name_size_bytes + bytes(file_name, "ascii")
+            opcode +
+            file_size_bytes +
+            file_name_size_bytes +
+            bytes(file_name, "ascii")
         )
