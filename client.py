@@ -14,21 +14,20 @@ def main():
 
     server_port = int(args.port)
     source_file_path = args.src
-    file_name = args.name
+    file_name_dst = args.name
 
     print("[ INFO ] - Got server port: {}".format(server_port))
     print("[ INFO ] - Got source file path: {}".format(source_file_path))
-    print("[ INFO ] - Got file name: {}".format(file_name))
+    print("[ INFO ] - Got file name: {}".format(file_name_dst))
 
     connection = Connection.connect(HOST, server_port)
     print("[ INFO ] - Nueva conexión generada con el servidor")
 
-    full_path_to_file = source_file_path + "/" + file_name
     client_upload = ClientUploadConnection(
         connection,
-        file_name,
-        os.path.getsize(full_path_to_file),
-        full_path_to_file
+        file_name_dst,
+        os.path.getsize(source_file_path),
+        source_file_path
     )
 
     thread = Thread(target=client_upload.run)
