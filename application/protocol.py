@@ -30,5 +30,10 @@ class ProtocolBuilder():
         return Opcode.Accepted.value
 
     'bytes is a size 4 unsigned integer'
+    @staticmethod
     def file_size_parser(bytes) -> int:
-        return struct.unpack('!I', bytes)
+        return struct.unpack('!I', bytes)[0]
+
+    @staticmethod
+    def fn_size_parser(byte) -> int:
+        return struct.unpack('b', byte)[0]

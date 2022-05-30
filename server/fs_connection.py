@@ -1,6 +1,7 @@
 
+
 from threading import Thread
-from application.protocol import Opcode, ProtocolBuilder, ResponseBuilder
+from application.protocol import Opcode, ProtocolBuilder
 
 from transport_tcp.connection import Connection
 
@@ -22,7 +23,7 @@ class FSConnection:
             print("[ INFO ] - Your clients wants to", str(action))
 
             if (action == Opcode.Upload):
-                self.upload()
+                self.process_upload()
 
         except ValueError:
             print('[ CONNECTION ]: Invalid OPCODE')
@@ -39,10 +40,27 @@ class FSConnection:
 
         # Y CONTESTARLE AL CLIENTE QUE ACEPTAMOS SU CONEXION
 
-    def upload(self):
-        res = ProtocolBuilder.accept_request()
+    def process_upload(self):
 
-        self.connection.send(res)
+        fs_length_raw = self.connection.recv(4)
+        file_size = ProtocolBuilder.file_size_parser(fs_length_raw)
+
+        fn_length_raw = self.connection.recv(1)
+        fn_length = ProtocolBuilder.fn_size_parser(fn_length_raw)
+
+        file_name = self.connection.recv(fn_length)
+        print('[ CONNECTION ] User wants to upload ',
+              file_name, ' with size: ', file_size)
+
+        # file = open('myfile.dat', 'w+')
+
+        # current_file_size = 0
+        # while(current_file_size <= file_size):
+        #     file_buffer = self.connection.recv(500)
+
+        # res = ProtocolBuilder.accept_request()
+
+        # self.connection.send(res)
 
     def close(self):
         self.thread.join()
