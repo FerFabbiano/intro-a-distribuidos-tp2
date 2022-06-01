@@ -22,7 +22,7 @@ class RdpController:
 
     def on_data_received(self, segment):
         """
-        Called by the protocol when a new segment containing data has 
+        Called by the protocol when a new segment containing data has
         been received.
         """
         pass

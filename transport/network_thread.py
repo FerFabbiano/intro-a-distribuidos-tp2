@@ -27,7 +27,8 @@ class NetworkThread:
             segment = Segment.from_datagram(data)
             if not segment.is_checksum_correct():
                 print(
-                    f'[NetworkThread@{remote_address}]: Invalid checksum {repr(segment)}')
+                    f"""[NetworkThread@{remote_address}]:
+                     Invalid checksum {repr(segment)}""")
                 continue
             print(f'<R {repr(segment)}')
             self._on_segment_received(segment, remote_address)
