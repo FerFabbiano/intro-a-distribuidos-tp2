@@ -37,18 +37,12 @@ def main():
         source_file_path
     )
 
-    thread = Thread(target=client.run)
-    thread.start()
-
-    finish_or_wait_quit(client)
-
     print(
         "[ INFO ] - Comienzo cierre de conexión con servidor."
         "Joineando threads."
     )
-
+    client.run()
     client.close()
-    thread.join()
     print("[ INFO ] - Thread joineados exitosamente! Terminando programa.")
 
     return 0

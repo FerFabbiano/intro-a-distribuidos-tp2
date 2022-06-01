@@ -1,7 +1,7 @@
 from application.file_utils import FileWriter
 from application.protocol import Opcode, ProtocolBuilder
 from server.config import BATCH_FILE_SIZE
-from transport_tcp.connection import Connection
+from transport.connection import Connection
 
 
 class ClientDownloadConnection:

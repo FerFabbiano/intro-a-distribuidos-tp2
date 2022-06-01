@@ -35,5 +35,11 @@ class Connection():
     def recv(self, buffer_size):
         return self.__socket.recv(buffer_size)
 
+    def recv_exact(self, buffer_size: int) -> bytes:
+        buffer = bytes()
+        while len(buffer) < buffer_size:
+            buffer += self.recv(buffer_size - len(buffer))
+        return buffer
+
     def close(self):
         self.__socket.close()

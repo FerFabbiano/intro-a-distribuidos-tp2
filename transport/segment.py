@@ -78,7 +78,11 @@ class Segment:
         return segment
 
     def __repr__(self):
-        return f'Segment({Opcode(self.opcode)}, seq={self.sequence_number}, {self.payload})'
+        payload_repr = repr(self.payload[:10])
+        if len(self.payload) > 10:
+            payload_repr += '...'
+
+        return f'Segment({Opcode(self.opcode)}, seq={self.sequence_number}, {payload_repr})'
     
     def __str__(self):
         return repr(self)

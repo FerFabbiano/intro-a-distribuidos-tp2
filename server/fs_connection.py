@@ -33,15 +33,17 @@ class FSConnection:
             self.connection.close()
 
     def process_upload(self):
-
-        fs_length_raw = self.connection.recv(4)
+        fs_length_raw = self.connection.recv_exact(4)
         file_size = ProtocolBuilder.file_size_parser(fs_length_raw)
+        print('FILE SIZE:', file_size)
 
-        fn_length_raw = self.connection.recv(1)
+        fn_length_raw = self.connection.recv_exact(1)
         fn_length = ProtocolBuilder.fn_size_parser(fn_length_raw)
+        print('FN LENGTH:', fn_length)
 
-        file_name_raw = self.connection.recv(fn_length)
+        file_name_raw = self.connection.recv_exact(fn_length)
         file_name = ProtocolBuilder.fn_parser(file_name_raw)
+        print('FN:', file_name)
 
         print('[ CONNECTION ] User wants to upload ',
               file_name, ' with size: ', file_size)
@@ -54,8 +56,11 @@ class FSConnection:
 
         with FileWriter(path, file_size) as file:
             while not file.end_of_file():
+                print(f'[ CONNECTION ] waiting for data')
                 buffer = self.connection.recv(BATCH_FILE_SIZE)
+                print(f'[ CONNECTION ] recvd {len(buffer)} bytes')
                 file.write_chunk(buffer)
+        print('[ CONNECTION ] file written')
 
     def process_download(self):
         fn_length_raw = self.connection.recv(1)

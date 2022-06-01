@@ -16,13 +16,14 @@ class FileReader():
         return os.path.exists(path)
 
     def read_chunk(self, chunk_size: int):
-        self.file.seek(self.read_offset)
+        # self.file.seek(self.read_offset)
         buffer = self.file.read(chunk_size)
         self.read_offset += len(buffer)
+        print(f'[FileReader.read_chunk] {self.read_offset=} {len(buffer)=}')
         return buffer
 
     def end_of_file(self):
-        return not self.read_offset < self.file_size
+        return self.read_offset >= self.file_size
 
     def close(self):
         self.file.close()
@@ -47,9 +48,10 @@ class FileWriter():
     def write_chunk(self, buffer: bytes):
         self.file.write(buffer)
         self.write_offset += len(buffer)
+        print(f"[FileWriter.write_chunk] {self.write_offset=} {len(buffer)=}", )
 
     def end_of_file(self):
-        return not self.write_offset < self.file_size
+        return self.write_offset >= self.file_size
 
     def close(self):
         self.file.close()

@@ -12,6 +12,7 @@ BUFFER_SIZE = 65536
 class Connection:
     def __init__(self, controller: RdpController):
         self._controller = controller
+        self._recv_buffer = bytes()
 
     def on_new_connection_reply(self, segment):
         self._controller.on_new_connection_reply(segment)
@@ -85,11 +86,24 @@ class Connection:
                 time.sleep(0.010)
 
             bytes_sent += self._controller.mss
+        
+        while self._controller.in_flight is not None:
+            time.sleep(0.010)
 
         return bytes_sent
 
     def recv(self, buffer_size: int) -> bytes:
-        return self._controller.pop_recv_queue().payload
+        if not self._recv_buffer:
+            self._recv_buffer += self._controller.pop_recv_queue().payload
+        data = self._recv_buffer[:buffer_size]
+        self._recv_buffer = self._recv_buffer[buffer_size:]
+        return data
+    
+    def recv_exact(self, buffer_size: int) -> bytes:
+        buffer = bytes()
+        while len(buffer) < buffer_size:
+            buffer += self.recv(buffer_size - len(buffer))
+        return buffer
 
     def close(self):
         pass

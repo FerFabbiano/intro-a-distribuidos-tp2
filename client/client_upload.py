@@ -73,6 +73,7 @@ class ClientUploadConnection:
                     "[ SUCCESS ] - Sent {} bytes to server."
                     .format(str(len(file_bytes)))
                 )
+            print(f'[Quitting upload loop] {self.keep_alive=} {file.end_of_file()=}')
 
     def close(self):
         self.keep_alive = False

@@ -3,11 +3,11 @@ import select
 from threading import Thread
 from client.client_download import ClientDownloadConnection
 from client.client_utils import build_download_parser, finish_or_wait_quit
-from transport_tcp.connection import Connection
+from transport.connection import Connection
 import os
 
 HOST = "127.0.0.1"  # The server's hostname or IP address
-PORT = 65433  # The port used by the server
+PORT = 65434  # The port used by the server
 BUFFER_SIZE = 508
 
 

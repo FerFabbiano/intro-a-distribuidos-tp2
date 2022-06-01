@@ -3,7 +3,7 @@ import threading
 from .rdp_controller import RdpController
 from transport.segment import Segment, Opcode
 
-TIME_TO_CONSIDER_LOST_SECS = 0.5
+TIME_TO_CONSIDER_LOST_SECS = 5
 MAX_RETRIES = 3
 
 
@@ -12,7 +12,7 @@ class StopAndWaitRdpController(RdpController):
         self._mss = 500
         self._in_flight = None
         self._sequence_number = 1
-        self._recv_sequence_number = 0
+        self._recv_sequence_number = 1
         self._recv_queue = []
         self._network = network
         self._connection_dead = False
@@ -27,6 +27,10 @@ class StopAndWaitRdpController(RdpController):
     @property
     def network(self):
         return self._network
+    
+    @property
+    def in_flight(self):
+        return self._in_flight
 
     @property
     def mss(self):
@@ -36,15 +40,16 @@ class StopAndWaitRdpController(RdpController):
         return not self._connection_dead
     
     def try_send_segment(self, segment: Segment) -> bool:
-        assert len(segment.payload) <= self.mss, f'Segment size must not be greater than {self.mss}'
-        if self._in_flight is not None:
-            return False  # No more space in window
-        
-        segment.sequence_number = self._sequence_number
-        self._sequence_number += 1
-        self._network.send_segment(segment)
-        self._in_flight = segment
-        return True
+        with self.lock:
+            assert len(segment.payload) <= self.mss, f'Segment size must not be greater than {self.mss}'
+            if self._in_flight is not None:
+                return False  # No more space in window
+            
+            segment.sequence_number = self._sequence_number
+            self._sequence_number += 1
+            self._network.send_segment(segment)
+            self._in_flight = segment
+            return True
 
     def on_tick(self, current_time):
         with self.lock:
