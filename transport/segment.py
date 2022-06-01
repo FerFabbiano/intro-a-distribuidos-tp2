@@ -1,8 +1,7 @@
 # Opcodes:
 #   - NewConnection = 0x10; No payload
 #   - Data = 0x21; Payload = data
-#   - Ack = 0x32; For Stop & Wait: no payload,
-# for Selective Repeat: payload = ACK data
+#   - Ack = 0x32; For Stop & Wait: no payload, for Selective Repeat: payload = ACK data
 #   - Close = 0x43; No payload
 #
 # Checksum: opcode XOR payload_size.low XOR ~(payload_size.high)

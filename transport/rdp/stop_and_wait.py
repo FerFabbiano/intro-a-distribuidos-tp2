@@ -29,8 +29,7 @@ class StopAndWaitRdpController(RdpController):
             while self._in_flight is not None:
                 self._in_flight_cv.wait()
 
-        # Since connection was not established yet,
-        # we should check if we've got an
+        # Since connection was not established yet, we should check if we've got an
         # ACK of if we should consider the connection as dead.
         if self._connection_dead:
             raise Exception('Could not establish a connection to the server')
@@ -63,7 +62,7 @@ class StopAndWaitRdpController(RdpController):
             if self._sequence_number == segment.sequence_number + 1:
                 print("[RDP.on_ack] ACK MATCHES")
                 with self._in_flight_cv:
-                    self._in_flight = None
+                    self._in_flight = None  # Segment was received by the other end
                     self._in_flight_cv.notify()
             else:
                 print("[RDP.on_ack] ACK DOESN'T MATCH")
@@ -80,7 +79,8 @@ class StopAndWaitRdpController(RdpController):
                 self._in_flight_cv.wait()
             # Push segment to the network
             with self.lock:
-                assert len(segment.payload) <= self.mss, f"""Segment size must not
+                assert len(
+                    segment.payload) <= self.mss, f"""Segment size must not 
                 be greater than {self.mss}"""
                 segment.sequence_number = self._sequence_number
                 self._sequence_number += 1
