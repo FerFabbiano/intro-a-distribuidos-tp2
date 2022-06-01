@@ -1,4 +1,4 @@
-class RdpController:
+class SelectiveRepeatRdpController:
     def send_welcome_segment(self):
         """
         Sends a welcome segment for a new connection
