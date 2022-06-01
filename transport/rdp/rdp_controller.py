@@ -1,16 +1,18 @@
+from transport.segment import Segment
+
 class RdpController:
-    def send_welcome_segment(self):
+    def do_active_handshake(self):
         """
-        Sends a welcome segment for a new connection
+        Starts the handshake of an active (client-to-server) connection.
         """
         pass
     
-    def on_new_connection_reply(self, segment):
+    def do_passive_handshake(self, welcome_segment):
         """
-        A NewConnectionReply has been received.
+        Responds to a handshake of a passive (server-to-client) connection.
         """
         pass
-
+    
     def on_tick(self, current_time):
         """
         Called by the protocol in regular periods of time
@@ -29,17 +31,19 @@ class RdpController:
         Called by the protocol when a new ACK has been received.
         """
         pass
-
-    def try_send_segment(self, data: bytes) -> bool:
+    
+    def send_segment(self, segment: Segment):
         """
-        Tries to create a new segment and push it to the network.
+        Blocks until the segment is sent.
 
-        data: Payload to send. len(data) < self.mss. 
-
-        Returns:
-            True if the segment was succesfully sent to the network
-            False if the congestion window is full / there are too
-                  many segments in flight.
+        This method will update the segment's sequence number
+        to the correct value.
+        """
+        pass
+    
+    def recv_segment(self) -> Segment:
+        """
+        Blocks until a segment is avaiable to be read.
         """
         pass
 
@@ -56,11 +60,5 @@ class RdpController:
     def is_alive(self):
         """
         Returns True if the connection is still alive.
-        """
-        pass
-
-    def pop_recv_queue(self):
-        """
-        Waits until the next segment in the sequence arrives and returns it
         """
         pass

@@ -2,99 +2,70 @@ import time
 import socket
 import select
 
-from threading import Thread
+from threading import Thread, Timer
 from queue import Queue
 from .segment import Segment, Opcode
 from .rdp import StopAndWaitRdpController
 from .raw_connection import RawConnection
-from .connection import Connection
-
-BUFFER_SIZE = 65536
+from .network_thread import NetworkThread
+from .connection import NETWORK_TICK_SECONDS
+from .passive_connection import PassiveConnection
 
 
 class Listener:
-    def __init__(self, host, port):
+    def __init__(self, host, port, ControllerType = None):
         self.src_address = (host, port)
         self.socket = None
         self.keep_running = True
         self.new_connections = Queue()
         self.connections = {}
-        self.network_thread = None
-        self.timers_thread = None
+        self._network_thread = None
+        self._timer = Timer(NETWORK_TICK_SECONDS, self.on_tick)
+        self._ControllerType = ControllerType or StopAndWaitRdpController
+        self._closing = False
+
         self.start()
 
     def start(self):
-        if self.socket or self.network_thread or self.timers_thread:
+        if self.socket or self._network_thread:
             raise Exception("The server is already running!")
 
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.socket.bind(self.src_address)
-        self.timers_thread = Thread(target=self._run_timers)
-        self.network_thread = Thread(target=self._run_network)
-        self.timers_thread.start()
-        self.network_thread.start()
+        self._timer = Timer(NETWORK_TICK_SECONDS, self.on_tick)
+        self._network_thread = NetworkThread(self.socket, self.on_segment_received)
+        self._timer.start()
+        self._network_thread.start()
+    
+    def on_tick(self):
+        # Push timer events and do some clean up
+        connections_to_remove = []
+        for address, connection in self.connections.items():
+            if not connection.is_alive():
+                connections_to_remove.append(address)
+            else:
+                connection.on_tick()
 
-    def _run_network(self):
-        while self.keep_running:
-            try:
-                ready = select.select([self.socket], [], [], 0.5)
-                if not ready[0]:
-                    continue
+        # Remove old connections
+        for address in connections_to_remove:
+            self.connections.pop(address)
+        
+        if not self._closing:
+            self._timer = Timer(NETWORK_TICK_SECONDS, self.on_tick).start()
 
-                msg, client_address = self.socket.recvfrom(BUFFER_SIZE)
-                segment = Segment.from_datagram(msg)
-                if not segment.is_checksum_correct():
-                    continue
-                print(segment)
-
-                if segment.opcode == Opcode.NewConnection:
-                    print(
-                        "[Listener.run_network] New connection from: ",
-                        client_address
-                    )
-                    controller = StopAndWaitRdpController(
-                        RawConnection(self.socket, client_address)
-                    )
-                    assert controller.try_send_segment(
-                        Segment(Opcode.NewConnectionReply, bytes())
-                    )
-                    self.connections[client_address] = Connection(controller)
-                    self.new_connections.put(self.connections[client_address])
-                else:
-                    connection = self.connections.get(client_address)
-                    if not connection:
-                        continue
-
-                    if segment.opcode == Opcode.NewConnectionReply:
-                        connection.on_new_connection_reply(segment)
-                    elif segment.opcode == Opcode.Data:
-                        connection.on_data_received(segment)
-                    elif segment.opcode == Opcode.Ack:
-                        connection.on_ack_received(segment)
-                    elif segment.opcode == Opcode.Close:
-                        connection.on_close(segment)
-                    else:
-                        print(
-                            "[Listener.run_network] Unknown opcode: ", segment)
-            except ValueError as e:
-                print("[Listener.run_network] Exception occured: ", e)
-        self.socket.close()
-
-    def _run_timers(self):
-        while self.keep_running:
-            time.sleep(0.010)
-
-            # Push timer events and do some clean up
-            connections_to_remove = []
-            for address, connection in self.connections.items():
-                if not connection.is_alive():
-                    connections_to_remove.append(address)
-                else:
-                    connection.on_tick(time.time())
-
-            # Remove old connections
-            for address in connections_to_remove:
-                self.connections.pop(address)
+    def on_segment_received(self, segment, remote_address):
+        if remote_address in self.connections:
+            self.connections[remote_address].on_segment_received(segment, remote_address)
+        elif segment.opcode == Opcode.NewConnection:
+            print("[Listener] New connection from: ", remote_address)
+            self.connections[remote_address] = PassiveConnection(
+                remote_address,
+                self._ControllerType(RawConnection(self.socket, remote_address)),
+                segment
+            )
+            self.new_connections.put(self.connections[remote_address])
+        else:
+            print(f"[Listener@{remote_address}] Segment received for unknown connection")            
 
     def get_new_connection(self):
         return self.new_connections.get()
@@ -102,16 +73,15 @@ class Listener:
     def close(self):
         if (
             not self.socket
-            or not self.network_thread
-            or not self.timers_thread
+            or not self._network_thread
         ):
             raise Exception("The server is not running!")
+        
+        self._closing = True
 
         self.keep_running = False
         print("after self.keep_running = False")
         self.new_connections.put(None)
         print("after self.new_connections.put(None)")
-        self.timers_thread.join()
-        print("after self.timers_thread.join()")
-        self.network_thread.join()
+        self._network_thread.stop()
         print("after self.network_thread.join()")

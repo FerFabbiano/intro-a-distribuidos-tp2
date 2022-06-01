@@ -32,14 +32,15 @@ MAX_UDP_DATAGRAM_SIZE = HEADER_SIZE + MAX_PAYLOAD_SIZE
 
 class Opcode(Enum):
     NewConnection = 0x10
-    NewConnectionReply = 0x11
     Data = 0x21
     Ack = 0x32
     Close = 0x43
 
 
 class Segment:
-    def __init__(self, opcode, payload, checksum=None, payload_size=None):
+    def __init__(self, opcode, payload=None, checksum=None, payload_size=None):
+        if payload is None:
+            payload = bytes()
         self.opcode = opcode
         self.payload = payload
         self.sequence_number = 0
