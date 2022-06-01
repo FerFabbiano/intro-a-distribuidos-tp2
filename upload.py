@@ -1,7 +1,6 @@
-from threading import Thread
 from application.file_utils import FileReader
 from client.client_upload import ClientUploadConnection
-from client.client_utils import build_upload_parser, finish_or_wait_quit
+from client.client_utils import build_upload_parser
 from transport.connection import Connection
 
 HOST = "127.0.0.1"  # The server's hostname or IP address

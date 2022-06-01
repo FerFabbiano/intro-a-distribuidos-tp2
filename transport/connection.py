@@ -37,12 +37,14 @@ class Connection:
 
     def send(self, data: bytes) -> int:
         for i in range(0, len(data), self._controller.mss):
-            self._controller.send_segment(Segment(Opcode.Data, data[i:(i + self._controller.mss)]))
+            self._controller.send_segment(Segment
+            (Opcode.Data, data[i:(i + self._controller.mss)]))
         return len(data)
 
     def recv(self, buffer_size: int) -> bytes:
         if not self._recv_buffer:
-            self._recv_buffer += self._controller.recv_segment().payload
+            self._recv_buffer += self.
+            _controller.recv_segment().payload
         data = self._recv_buffer[:buffer_size]
         self._recv_buffer = self._recv_buffer[buffer_size:]
         return data

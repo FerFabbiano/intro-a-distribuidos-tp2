@@ -28,12 +28,12 @@ class StopAndWaitRdpController(RdpController):
         with self._in_flight_cv:
             while self._in_flight is not None:
                 self._in_flight_cv.wait()
-        
-        # Since connection was not established yet, we should check if we've got an 
+
+        # Since connection was not established yet, we should check if we've got an
         # ACK of if we should consider the connection as dead.
         if self._connection_dead:
             raise Exception('Could not establish a connection to the server')
-    
+
     def do_passive_handshake(self, welcome_segment):
         self._recv_sequence_number = welcome_segment.sequence_number
         self._send_ack(welcome_segment.sequence_number)
@@ -41,18 +41,19 @@ class StopAndWaitRdpController(RdpController):
     def on_tick(self, current_time):
         with self.lock:
             if self._in_flight is not None:
-                if self._in_flight.creation_time + TIME_TO_CONSIDER_LOST_SECS < time.time():
+                if (self._in_flight.creation_time +
+                        TIME_TO_CONSIDER_LOST_SECS < time.time()):
                     segment_lost = self._in_flight
                     self._in_flight = None
                     self._on_packet_lost(segment_lost)
-    
+
     def on_data_received(self, segment):
         with self.lock:
             # Update our _recv_sequence_number
             if segment.sequence_number == self._recv_sequence_number + 1:
                 self._recv_sequence_number += 1
                 self._recv_queue.put(segment)
-            
+
             # Send ACK
             self._send_ack(self._recv_sequence_number)
 
@@ -78,22 +79,24 @@ class StopAndWaitRdpController(RdpController):
                 self._in_flight_cv.wait()
             # Push segment to the network
             with self.lock:
-                assert len(segment.payload) <= self.mss, f'Segment size must not be greater than {self.mss}'
+                assert len(
+                    segment.payload) <= self.mss, f"""Segment size must not 
+                be greater than {self.mss}"""
                 segment.sequence_number = self._sequence_number
                 self._sequence_number += 1
                 self._network.send_segment(segment)
                 self._in_flight = segment
-    
+
     def recv_segment(self) -> Segment:
         """
         Blocks until a segment is available to be read.
         """
         return self._recv_queue.get()
-    
+
     @property
     def mss(self):
         return self._mss
-    
+
     def is_alive(self):
         return not self._connection_dead
 
@@ -108,9 +111,8 @@ class StopAndWaitRdpController(RdpController):
             segment_lost.creation_time = time.time()
             segment_lost.retries += 1
             self._in_flight = segment_lost
-    
+
     def _send_ack(self, ack_number):
         ack = Segment(Opcode.Ack)
         ack.sequence_number = ack_number
         self._network.send_segment(ack)
-    
