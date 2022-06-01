@@ -1,3 +1,5 @@
+import sys
+import select
 from threading import Thread
 from client.client_download import ClientDownloadConnection
 from client.client_utils import build_download_parser, finish_or_wait_quit

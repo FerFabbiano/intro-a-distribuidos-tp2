@@ -48,8 +48,7 @@ class FileWriter():
     def write_chunk(self, buffer: bytes):
         self.file.write(buffer)
         self.write_offset += len(buffer)
-        print(f"[FileWriter.write_chunk] 
-        {self.write_offset=} {len(buffer)=}", )
+        print(f"[FileWriter.write_chunk] {self.write_offset=} {len(buffer)=}", )
 
     def end_of_file(self):
         return self.write_offset >= self.file_size

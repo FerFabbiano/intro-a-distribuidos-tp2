@@ -56,7 +56,7 @@ class FSConnection:
 
         with FileWriter(path, file_size) as file:
             while not file.end_of_file():
-                print('[ CONNECTION ] waiting for data')
+                print(f'[ CONNECTION ] waiting for data')
                 buffer = self.connection.recv(BATCH_FILE_SIZE)
                 print(f'[ CONNECTION ] recvd {len(buffer)} bytes')
                 file.write_chunk(buffer)
