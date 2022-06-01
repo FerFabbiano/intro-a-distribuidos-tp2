@@ -1,7 +1,7 @@
 from application.file_utils import FileReader
 from application.protocol import Opcode, ProtocolBuilder
 
-from transport_tcp.connection import Connection
+from transport.connection import Connection
 
 CHUNK_SIZE = 500
 

@@ -2,7 +2,7 @@ from threading import Thread
 from application.file_utils import FileReader
 from client.client_upload import ClientUploadConnection
 from client.client_utils import build_upload_parser, finish_or_wait_quit
-from transport_tcp.connection import Connection
+from transport.connection import Connection
 
 HOST = "127.0.0.1"  # The server's hostname or IP address
 PORT = 65433  # The port used by the server

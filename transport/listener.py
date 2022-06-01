@@ -1,7 +1,15 @@
 import time
+import socket
+import select
 
 from threading import Thread
+from queue import Queue
 from .segment import Segment, Opcode
+from .rdp import StopAndWaitRdpController
+from .raw_connection import RawConnection
+from .connection import Connection
+
+BUFFER_SIZE = 65536
 
 
 class Listener:
@@ -13,6 +21,7 @@ class Listener:
         self.connections = {}
         self.network_thread = None
         self.timers_thread = None
+        self.start()
 
     def start(self):
         if self.socket or self.network_thread or self.timers_thread:
@@ -28,22 +37,48 @@ class Listener:
     def _run_network(self):
         while self.keep_running:
             try:
+                ready = select.select([self.socket], [], [], 0.5)
+                if not ready[0]:
+                    continue
+
                 msg, client_address = self.socket.recvfrom(BUFFER_SIZE)
                 segment = Segment.from_datagram(msg)
                 if not segment.is_checksum_correct():
-                    print(
-                        "[Listener.run_network] Segment with invalid checksum: ", segment)
                     continue
+                print(segment)
 
                 if segment.opcode == Opcode.NewConnection:
-                    print("[ INFO IN NEW CONNECTION ] - ", msg[1:])
-                    self.connections[client_address] = Connection(self)
+                    print(
+                        "[Listener.run_network] New connection from: ",
+                        client_address
+                    )
+                    controller = StopAndWaitRdpController(
+                        RawConnection(self.socket, client_address)
+                    )
+                    assert controller.try_send_segment(
+                        Segment(Opcode.NewConnectionReply, bytes())
+                    )
+                    self.connections[client_address] = Connection(controller)
                     self.new_connections.put(self.connections[client_address])
                 else:
                     connection = self.connections.get(client_address)
-                    # if segment.opcode == Opcode.
-            except Exception as e:
+                    if not connection:
+                        continue
+
+                    if segment.opcode == Opcode.NewConnectionReply:
+                        connection.on_new_connection_reply(segment)
+                    elif segment.opcode == Opcode.Data:
+                        connection.on_data_received(segment)
+                    elif segment.opcode == Opcode.Ack:
+                        connection.on_ack_received(segment)
+                    elif segment.opcode == Opcode.Close:
+                        connection.on_close(segment)
+                    else:
+                        print(
+                            "[Listener.run_network] Unknown opcode: ", segment)
+            except ValueError as e:
                 print("[Listener.run_network] Exception occured: ", e)
+        self.socket.close()
 
     def _run_timers(self):
         while self.keep_running:
@@ -55,18 +90,28 @@ class Listener:
                 if not connection.is_alive():
                     connections_to_remove.append(address)
                 else:
-                    connection.on_event(TimerEvent(time.now()))
+                    connection.on_tick(time.time())
 
             # Remove old connections
             for address in connections_to_remove:
                 self.connections.pop(address)
 
-    def stop(self):
-        if not self.socket or not self.network_thread or not self.timers_thread:
+    def get_new_connection(self):
+        return self.new_connections.get()
+
+    def close(self):
+        if (
+            not self.socket
+            or not self.network_thread
+            or not self.timers_thread
+        ):
             raise Exception("The server is not running!")
 
         self.keep_running = False
+        print("after self.keep_running = False")
         self.new_connections.put(None)
-        self.socket.close()
+        print("after self.new_connections.put(None)")
         self.timers_thread.join()
+        print("after self.timers_thread.join()")
         self.network_thread.join()
+        print("after self.network_thread.join()")
