@@ -3,33 +3,38 @@ import time
 from .rdp import RdpController, StopAndWaitRdpController
 from .raw_connection import RawConnection
 from transport.segment import Segment, Opcode
+import threading
+
+
+BUFFER_SIZE = 65536
+
 
 class Connection:
     def __init__(self, controller: RdpController):
         self._controller = controller
-    
+
     def on_new_connection_reply(self, segment):
         self._controller.on_new_connection_reply(segment)
-    
+
     def on_tick(self, current_time):
         """
         Called by the protocol in regular periods of time
         """
         self._controller.on_tick(current_time)
-    
+
     def on_data_received(self, segment):
         """
         Called by the protocol when a new segment containing data has 
         been received.
         """
         self._controller.on_data_received(segment)
-    
+
     def on_ack_received(self, segment):
         """
         Called by the protocol when a new ACK has been received.
         """
         self._controller.on_ack_received(segment)
-   
+
     def on_close(self):
         pass
 
@@ -38,12 +43,11 @@ class Connection:
         raw_connection = RawConnection.connect(host, port)
         controller = StopAndWaitRdpController(raw_connection)
         assert controller.try_send_segment(Segment(Opcode.NewConnection, bytes()))
-        import threading
         self = Connection(controller)
         threading.Thread(target=self._run_timers).start()
         threading.Thread(target=self._run_network).start()
         return self
-    
+
     def _run_timers(self):
         while self.is_alive():
             time.sleep(0.010)
@@ -51,7 +55,7 @@ class Connection:
 
     def _run_network(self):
         while self.is_alive():
-            msg, client_address = self._controller._network.socket.recvfrom(65536)
+            msg, client_address = self._controller._network.socket.recvfrom(BUFFER_SIZE)
             # validar client_address
             segment = Segment.from_datagram(msg)
             if not segment.is_checksum_correct():
@@ -69,14 +73,21 @@ class Connection:
                 self.on_close(segment)
             else:
                 print("[Listener.run_network] Unknown opcode: ", segment)
-    
+
     def send(self, data: bytes) -> int:
-        part = data[0:self._controller.mss]
-        segment = Segment(Opcode.Data, part)
-        while not self._controller.try_send_segment(segment):
-            time.sleep(0.010)
-        return len(part)
-    
+        bytes_sent = 0
+
+        while bytes_sent < len(data):
+            part = data[bytes_sent:(bytes_sent + self._controller.mss)]
+
+            segment = Segment(Opcode.Data, part)
+            while not self._controller.try_send_segment(segment):
+                time.sleep(0.010)
+
+            bytes_sent += self._controller.mss
+
+        return bytes_sent
+
     def recv(self, buffer_size: int) -> bytes:
         return self._controller.pop_recv_queue().payload
 
@@ -85,3 +96,7 @@ class Connection:
 
     def is_alive(self):
         return self._controller.is_alive()
+
+    @property
+    def address(self):
+        self._controller.network.destination_address

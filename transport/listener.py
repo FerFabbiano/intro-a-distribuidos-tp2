@@ -21,6 +21,7 @@ class Listener:
         self.connections = {}
         self.network_thread = None
         self.timers_thread = None
+        self.start()
 
     def start(self):
         if self.socket or self.network_thread or self.timers_thread:
@@ -98,7 +99,7 @@ class Listener:
     def get_new_connection(self):
         return self.new_connections.get()
 
-    def stop(self):
+    def close(self):
         if (
             not self.socket
             or not self.network_thread

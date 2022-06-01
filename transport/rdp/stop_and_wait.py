@@ -6,6 +6,7 @@ from transport.segment import Segment, Opcode
 TIME_TO_CONSIDER_LOST_SECS = 0.5
 MAX_RETRIES = 3
 
+
 class StopAndWaitRdpController(RdpController):
     def __init__(self, network):
         self._mss = 500
@@ -22,6 +23,10 @@ class StopAndWaitRdpController(RdpController):
             self._in_flight = None
             self.send_ack(1)
             self._recv_sequence_number = 1
+
+    @property
+    def network(self):
+        return self._network
 
     @property
     def mss(self):

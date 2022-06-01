@@ -1,7 +1,7 @@
 import os
 from server.config import BASE_FS_FOLDER
 from server.fs_connection import FSConnection
-from transport_tcp.listener import Listener
+from transport.listener import Listener
 
 
 class FSServer:
