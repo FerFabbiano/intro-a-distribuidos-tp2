@@ -24,14 +24,14 @@ def main():
             "[ WARN ] - "
             "Directory {} not found. Pleasea create directory "
             "or select another"
-            .format(destination_file_path)
+                .format(destination_file_path)
         )
         return
 
     print("[ INFO ] - Got server port: {}".format(server_port))
     print(
         "[ INFO ] - Got destination file path: {}"
-        .format(destination_file_path)
+            .format(destination_file_path)
     )
     print("[ INFO ] - Got file name: {}".format(file_name_dst))
 
@@ -44,25 +44,22 @@ def main():
         destination_file_path
     )
 
-    thread = Thread(target=client.run)
-    thread.start()
-
-    finish_or_wait_quit(client)
+    # finish_or_wait_quit(client)
 
     print(
         "[ INFO ] - Comienzo cierre de conexión con servidor."
         "Joineando threads."
     )
 
+    client.run()
     client.close()
-    thread.join()
+
     print("[ INFO ] - Thread joineados exitosamente! Terminando programa.")
 
     return 0
 
 
 main()
-
 
 # def main():
 #     # while(True):

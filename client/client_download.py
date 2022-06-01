@@ -64,5 +64,7 @@ class ClientDownloadConnection:
                 buffer = self.connection.recv(BATCH_FILE_SIZE)
                 file.write_chunk(buffer)
 
+        self.connection.close()
+
     def close(self):
         self.keep_alive = False
