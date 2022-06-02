@@ -7,6 +7,8 @@ from transport.segment import Segment, Opcode
 
 TIME_TO_CONSIDER_LOST_SECS = 10
 MAX_RETRIES = 3
+SEND_WINDOW_SIZE = 4
+RECV_WINDOW_SIZE = 4
 
 
 class SelectiveRepeatRdpController(RdpController):
@@ -25,10 +27,8 @@ class SelectiveRepeatRdpController(RdpController):
         # SACADO DEL LIBRO
         # A problem at the end of the chapter asks you to show that the window size must be less than
         # or equal to half the size of the sequence number space for SR protocols.
-        self._recv_window_size = 4
         self._recv_buffer = {}
         self._send_window_base = self._sequence_number
-        self._send_window_size = 4
 
     def do_active_handshake(self):
         """
@@ -38,7 +38,7 @@ class SelectiveRepeatRdpController(RdpController):
         # de bienvenida es el self._sequence_number
 
         # with self._send_window_cv:
-        # send_window_end = self._send_window_base + self._send_window_size - 1
+        # send_window_end = self._send_window_base + SEND_WINDOW_SIZE - 1
         # while not (self._send_window_base <= self._sequence_number <= send_window_end):
         # the seq number is not within the send window, the packet has to wait
         # self._send_window_cv.wait()
@@ -61,6 +61,7 @@ class SelectiveRepeatRdpController(RdpController):
         """
         Responds to a handshake of a passive (server-to-client) connection.
         """
+        self._recv_window_base += 1
         self._send_ack(welcome_segment.sequence_number)
 
     def on_tick(self, current_time):
@@ -78,8 +79,11 @@ class SelectiveRepeatRdpController(RdpController):
         Called by the protocol when a new segment containing data has
         been received.
         """
+
         with self.lock:
-            if self._recv_window_base <= segment.sequence_number <= self._recv_window_base + self._recv_window_size - 1:
+
+            if self._recv_window_base <= segment.sequence_number <= self._recv_window_base + RECV_WINDOW_SIZE - 1:
+
                 # correctly received, new packet
 
                 # send individual ack for this packet, no matter if disordered
@@ -104,7 +108,7 @@ class SelectiveRepeatRdpController(RdpController):
                     # forward window base by number of packets delivered to upper layer
                     self._recv_window_base += i
 
-            if self._recv_window_base - self._recv_window_size <= segment.sequence_number <= self._recv_window_base - 1:
+            if self._recv_window_base - RECV_WINDOW_SIZE <= segment.sequence_number <= self._recv_window_base - 1:
                 # ack for this packet may have not reached the sender, reacknowledge packet
                 self._send_ack(segment.sequence_number)
 
