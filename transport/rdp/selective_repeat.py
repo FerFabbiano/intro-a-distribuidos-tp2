@@ -5,7 +5,7 @@ import time
 from transport.rdp import RdpController
 from transport.segment import Segment, Opcode
 
-TIME_TO_CONSIDER_LOST_SECS = 0.5
+TIME_TO_CONSIDER_LOST_SECS = 10
 MAX_RETRIES = 3
 
 
@@ -20,7 +20,7 @@ class SelectiveRepeatRdpController(RdpController):
         self._connection_dead = False
         self.lock = threading.Lock()
         self._send_window_cv = threading.Condition(threading.Lock())
-        self._in_flight_cv = threading.Condition(threading.Lock())
+        # self._in_flight_cv = threading.Condition(threading.Lock())
         self._recv_window_base = self._sequence_number
         # SACADO DEL LIBRO
         # A problem at the end of the chapter asks you to show that the window size must be less than
@@ -34,12 +34,22 @@ class SelectiveRepeatRdpController(RdpController):
         """
         Starts the handshake of an active (client-to-server) connection.
         """
-        self.send_segment(Segment(Opcode.NewConnection))
+        # Se que entra en la ventana entonces se que el seq number que le asiganara al paquete
+        # de bienvenida es el self._sequence_number
+
+        # with self._send_window_cv:
+        # send_window_end = self._send_window_base + self._send_window_size - 1
+        # while not (self._send_window_base <= self._sequence_number <= send_window_end):
+        # the seq number is not within the send window, the packet has to wait
+        # self._send_window_cv.wait()
+        seg = Segment(Opcode.NewConnection)
+        self.send_segment(seg)
 
         # Wait for ACK to come and clear the cwnd
-        with self._in_flight_cv:
-            while len(self._in_flight) > 0:
-                self._in_flight_cv.wait()
+        with self._send_window_cv:
+            while seg.sequence_number in self._in_flight:
+                # no llego el ack
+                self._send_window_cv.wait()
 
         # Since connection was not established yet, we should check if we've got an
         # ACK of if we should consider the connection as dead.
@@ -65,7 +75,7 @@ class SelectiveRepeatRdpController(RdpController):
 
     def on_data_received(self, segment):
         """
-        Called by the protocol when a new segment containing data has 
+        Called by the protocol when a new segment containing data has
         been received.
         """
         with self.lock:
@@ -109,10 +119,11 @@ class SelectiveRepeatRdpController(RdpController):
                     break
 
             # print("[RDP.on_ack] ACK DOESN'T MATCH")
-            if segment.sequence_number == self._send_window_base and len(self._in_flight) > 0:
+            if segment.sequence_number == self._send_window_base:
                 # move send window base to the lowest unacknowledged sequence number
                 with self._send_window_cv:
-                    self._send_window_base = min(self._in_flight.keys())
+                    if len(self._in_flight) > 0:
+                        self._send_window_base = min(self._in_flight.keys())
                     self._send_window_cv.notify()
 
     def send_segment(self, segment: Segment):
