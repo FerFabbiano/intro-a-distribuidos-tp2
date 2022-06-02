@@ -4,6 +4,8 @@ import select
 
 from threading import Thread, Timer
 from queue import Queue
+
+from .rdp.selective_repeat import SelectiveRepeatRdpController
 from .segment import Segment, Opcode
 from .rdp import StopAndWaitRdpController
 from .raw_connection import RawConnection
@@ -22,7 +24,8 @@ class Listener:
         self.connections = {}
         self._network_thread = None
         self._timer = Timer(NETWORK_TICK_SECONDS, self.on_tick)
-        self._ControllerType = ControllerType or StopAndWaitRdpController
+        # self._ControllerType = ControllerType or StopAndWaitRdpController
+        self._ControllerType = ControllerType or SelectiveRepeatRdpController
         self._closing = False
 
         self.start()
@@ -78,8 +81,8 @@ class Listener:
 
     def close(self):
         if (
-            not self.socket
-            or not self._network_thread
+                not self.socket
+                or not self._network_thread
         ):
             raise Exception("The server is not running!")
 
