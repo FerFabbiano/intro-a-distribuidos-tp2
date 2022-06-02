@@ -7,9 +7,9 @@ from transport_tcp.connection import Connection
 
 
 class FSConnection:
-    def __init__(self, connection: Connection):
+    def __init__(self, connection: Connection, baseFsFolder):
         self.connection = connection
-
+        self.baseFsFolder = baseFsFolder
         self.thread = Thread(target=self.run)
         self.thread.start()
 

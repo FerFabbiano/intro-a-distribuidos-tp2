@@ -1,18 +1,17 @@
 from threading import Thread
 import logging
 from server.fs_server import FSServer
-
-
-HOST = "127.0.0.1"  # Standard loopback interface address (localhost)
-PORT = 65434  # Port to listen on (non-privileged ports are > 1023)
+from client.client_utils import build_server_parser
 
 
 def main():
-    fsServer = FSServer(HOST, PORT)
+
+    args = build_server_parser().parse_args()
+    fsServer = FSServer(args.host, int(args.port), args.dirpath)
 
     logging.basicConfig(
         format='%(asctime)s - %(message)s', datefmt='%H:%M:%S',
-        level=logging.DEBUG)
+        level=args.loglevel)
     thread = Thread(target=fsServer.run)
     thread.start()
     userInput = input()
