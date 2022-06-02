@@ -20,7 +20,8 @@ class FSConnection:
         try:
             action = Opcode(opcode)
 
-            print("[ INFO ] - Your clients wants to", str(action))
+            logging.debug(
+                "[ INFO ] - Your clients wants to {}".format(str(action)))
 
             if (action == Opcode.Upload):
                 self.process_upload()
@@ -28,7 +29,7 @@ class FSConnection:
                 self.process_download()
 
         except ValueError:
-            print("[ CONNECTION ]: Invalid OPCODE ", opcode)
+            logging.error("[ CONNECTION ]: Invalid OPCODE {}".format(opcode))
         finally:
             self.connection.close()
 
@@ -56,9 +57,8 @@ class FSConnection:
 
         with FileWriter(path, file_size) as file:
             while not file.end_of_file():
-                print(f'[ CONNECTION ] waiting for data')
+                logging.debug("[ CONNECTION ] waiting for data")
                 buffer = self.connection.recv(BATCH_FILE_SIZE)
-                print(f'[ CONNECTION ] recvd {len(buffer)} bytes')
                 file.write_chunk(buffer)
         logging.debug('[ CONNECTION ] file written')
 

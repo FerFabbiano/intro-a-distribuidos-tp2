@@ -60,7 +60,8 @@ class Listener:
             self.connections[remote_address].on_segment_received(
                 segment, remote_address)
         elif segment.opcode == Opcode.NewConnection:
-            print("[Listener] New connection from: ", remote_address)
+            logging.info(
+                "[Listener] New connection from: {} ".format(remote_address))
             self.connections[remote_address] = PassiveConnection(
                 remote_address,
                 self._ControllerType(RawConnection(
