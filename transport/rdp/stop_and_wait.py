@@ -43,7 +43,6 @@ class StopAndWaitRdpController(RdpController):
             if self._in_flight is not None:
                 if self._in_flight.creation_time + TIME_TO_CONSIDER_LOST_SECS < time.time():
                     segment_lost = self._in_flight
-                    self._in_flight = None
                     self._on_packet_lost(segment_lost)
 
     def on_data_received(self, segment):
@@ -108,7 +107,6 @@ class StopAndWaitRdpController(RdpController):
             self._network.send_segment(segment_lost)
             segment_lost.creation_time = time.time()
             segment_lost.retries += 1
-            self._in_flight = segment_lost
 
     def _send_ack(self, ack_number):
         ack = Segment(Opcode.Ack)
