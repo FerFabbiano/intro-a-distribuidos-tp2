@@ -43,10 +43,9 @@ class ClientUploadConnection:
             file_size
         )
 
-        print(
-            logging.info("[ INFO ] - Upload handshake msg: {}"
-                         .format(handshake_msg_bytes))
-        )
+        logging.debug("[ INFO ] - Upload handshake msg: {}"
+                      .format(handshake_msg_bytes))
+
         self.connection.send(handshake_msg_bytes)
 
     def upload_process(self):

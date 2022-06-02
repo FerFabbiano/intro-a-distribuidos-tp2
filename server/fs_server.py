@@ -17,17 +17,17 @@ class FSServer:
         self.listener = Listener(host, port)
 
     def run(self):
-        logging.info("[ INFO ] - Running server")
+        logging.debug("[ INFO ] - Running server")
 
         while self.keep_running:
-            logging.info("[ INFO ] - Waiting New Connections")
+            logging.debug("[ INFO ] - Waiting New Connections")
 
             new_connection = self.listener.get_new_connection()
 
             if new_connection is None:
                 return
 
-            logging.info("[ INFO ] - Have New Connection from %s",
+            logging.debug("[ INFO ] - Have New Connection from %s",
                          str(new_connection))
 
             # If we don't have a client connection with that specific address

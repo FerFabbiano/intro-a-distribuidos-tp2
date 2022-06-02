@@ -1,4 +1,5 @@
 import os
+import logging
 
 
 class FileReader():
@@ -19,7 +20,10 @@ class FileReader():
         # self.file.seek(self.read_offset)
         buffer = self.file.read(chunk_size)
         self.read_offset += len(buffer)
-        print(f'[FileReader.read_chunk] {self.read_offset=} {len(buffer)=}')
+        # print(f'[FileReader.read_chunk] {self.read_offset=} {len(buffer)=}')
+        logging.debug("[FileReader.read_chunk] {} {}".format(
+            self.read_offset, len(buffer)))
+
         return buffer
 
     def end_of_file(self):
@@ -48,7 +52,10 @@ class FileWriter():
     def write_chunk(self, buffer: bytes):
         self.file.write(buffer)
         self.write_offset += len(buffer)
-        print(f"[FileWriter.write_chunk] {self.write_offset=} {len(buffer)=}", )
+        # print(
+        #   f"[FileWriter.write_chunk] {self.write_offset=} {len(buffer)=}", )
+        logging.debug("[FileReader.read_chunk] {} {}".format(
+            self.write_offset, len(buffer)))
 
     def end_of_file(self):
         return self.write_offset >= self.file_size

@@ -14,7 +14,7 @@ class FSConnection:
         self.thread.start()
 
     def run(self):
-        logging.info("[ INFO NEW CONNECTION] - Running the new client")
+        logging.debug("[ INFO NEW CONNECTION] - Running the new client")
 
         opcode = self.connection.recv(1)
         try:

@@ -1,7 +1,7 @@
 import queue
 import threading
 import time
-
+import logging
 from transport.rdp import RdpController
 from transport.segment import Segment, Opcode
 
@@ -96,7 +96,8 @@ class SelectiveRepeatRdpController(RdpController):
                     i = 1
                     while send:
                         if self._recv_window_base + i in self._recv_buffer:
-                            self._recv_queue.put(self._recv_buffer.pop(self._recv_window_base + i))
+                            self._recv_queue.put(self._recv_buffer.pop(
+                                self._recv_window_base + i))
                             i += 1
                         else:
                             send = False
@@ -114,8 +115,9 @@ class SelectiveRepeatRdpController(RdpController):
         with self.lock:
             for seq_number in list(self._in_flight):
                 if seq_number == segment.sequence_number:
-                    print("[RDP.on_ack] ACK MATCHES")
-                    self._in_flight.pop(seq_number)  # Segment was received, no longer in flight
+                    logging.debug("[RDP.on_ack] ACK MATCHES")
+                    # Segment was received, no longer in flight
+                    self._in_flight.pop(seq_number)
                     break
 
             # print("[RDP.on_ack] ACK DOESN'T MATCH")
@@ -140,7 +142,8 @@ class SelectiveRepeatRdpController(RdpController):
                 self._send_window_cv.wait()
 
             with self.lock:
-                assert len(segment.payload) <= self.mss, f'Segment size must not be greater than {self.mss}'
+                assert len(
+                    segment.payload) <= self.mss, f'Segment size must not be greater than {self.mss}'
                 segment.sequence_number = self._sequence_number
                 self._sequence_number += 1
                 self._network.send_segment(segment)
@@ -169,7 +172,7 @@ class SelectiveRepeatRdpController(RdpController):
         pass
 
     def _on_packet_lost(self, segment_lost):
-        print("[RDP.on_loss]", segment_lost)
+        logging.debug("[RDP.on_loss] {}".format(segment_lost))
         if segment_lost.retries >= MAX_RETRIES:
             self._connection_dead = True
             with self._send_window_cv:

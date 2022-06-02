@@ -73,7 +73,7 @@ class Listener:
             )
             self.new_connections.put(self.connections[remote_address])
         else:
-            logging.info(
+            logging.debug(
                 f"[Listener@{remote_address}] Segment received for unknown connection")
 
     def get_new_connection(self):

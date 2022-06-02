@@ -21,6 +21,8 @@ def main():
     destination_file_path = args.dst
     file_name_dst = args.name
 
+    logging.info("[INFO] Cliente iniciado, se realizara un download")
+
     # TODO: REVISAR ESTO
     if not os.path.dirname(destination_file_path):
         logging.warning(
@@ -31,15 +33,17 @@ def main():
         )
         return
 
-    logging.info("[ INFO ] - Got server port: {}".format(server_port))
+    logging.debug("[ INFO ] - Got server port: {}".format(server_port))
     logging.debug(
         "[ INFO ] - Got destination file path: {}"
         .format(destination_file_path)
     )
     logging.debug("[ INFO ] - Got file name: {}".format(file_name_dst))
 
+    logging.info("[INFO] Se establecera una conexion con el host : {} y port: {}".format(
+        HOST, server_port))
+
     connection = Connection.connect(HOST, server_port)
-    logging.debug("[ INFO ] - Nueva conexión generada con el servidor")
 
     client = ClientDownloadConnection(
         connection,
@@ -59,13 +63,12 @@ def main():
 
     logging.debug(
         "[ INFO ] - Thread joineados exitosamente! Terminando programa.")
+    logging.info("[INFO] El cliente se ha cerrado exitosamente")
 
     return 0
 
 
 main()
-<<<<<<< HEAD
-=======
 
 # def main():
 #     # while(True):
@@ -86,4 +89,3 @@ main()
 
 # main()
 # print(f"Received {data!r}")
->>>>>>> 510b3302d85ce6afd4b92e0b03e4ed504d59dccc
