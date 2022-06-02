@@ -1,5 +1,5 @@
 from threading import Thread
-
+import logging
 from server.fs_server import FSServer
 
 
@@ -10,6 +10,9 @@ PORT = 65434  # Port to listen on (non-privileged ports are > 1023)
 def main():
     fsServer = FSServer(HOST, PORT)
 
+    logging.basicConfig(
+        format='%(asctime)s - %(message)s', datefmt='%H:%M:%S',
+        level=logging.DEBUG)
     thread = Thread(target=fsServer.run)
     thread.start()
     userInput = input()
@@ -19,9 +22,9 @@ def main():
 
     fsServer.stop()
 
-    print("[ INFO ] - Termine de correr")
+    logging.info("[INFO] - Servidor termino de correr")
     thread.join()
-    print("[ INFO ] - Join del server")
+    logging.debug("[DEBUG] - Servidor termino de correr")
 
 
 if __name__ == "__main__":

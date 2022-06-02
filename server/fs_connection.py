@@ -2,7 +2,7 @@ from threading import Thread
 from application.file_utils import FileReader, FileWriter
 from application.protocol import Opcode, ProtocolBuilder
 from server.config import BASE_FS_FOLDER, BATCH_FILE_SIZE
-
+import logging
 from transport_tcp.connection import Connection
 
 
@@ -14,7 +14,7 @@ class FSConnection:
         self.thread.start()
 
     def run(self):
-        print("[ INFO NEW CONNECTION] - Running the new client")
+        logging.info("[ INFO NEW CONNECTION] - Running the new client")
 
         opcode = self.connection.recv(1)
         try:
@@ -35,18 +35,18 @@ class FSConnection:
     def process_upload(self):
         fs_length_raw = self.connection.recv_exact(4)
         file_size = ProtocolBuilder.file_size_parser(fs_length_raw)
-        print('FILE SIZE:', file_size)
+        logging.debug('FILE SIZE: %i', file_size)
 
         fn_length_raw = self.connection.recv_exact(1)
         fn_length = ProtocolBuilder.fn_size_parser(fn_length_raw)
-        print('FN LENGTH:', fn_length)
+        logging.debug(' FN LENGTH: %i', fn_length)
 
         file_name_raw = self.connection.recv_exact(fn_length)
         file_name = ProtocolBuilder.fn_parser(file_name_raw)
-        print('FN:', file_name)
+        logging.debug('FN: %s', file_name)
 
-        print('[ CONNECTION ] User wants to upload ',
-              file_name, ' with size: ', file_size)
+        logging.info(
+            "[ CONNECTION ] User wants to upload %s with size: %i", file_name, file_size)
 
         # Accept request
         res = ProtocolBuilder.accept_request()
@@ -60,7 +60,7 @@ class FSConnection:
                 buffer = self.connection.recv(BATCH_FILE_SIZE)
                 print(f'[ CONNECTION ] recvd {len(buffer)} bytes')
                 file.write_chunk(buffer)
-        print('[ CONNECTION ] file written')
+        logging.debug('[ CONNECTION ] file written')
 
     def process_download(self):
         fn_length_raw = self.connection.recv(1)
@@ -69,7 +69,7 @@ class FSConnection:
         file_name_raw = self.connection.recv(fn_length)
         file_name = ProtocolBuilder.fn_parser(file_name_raw)
 
-        print('[ CONNECTION ] User wants to download ', file_name)
+        logging.info("[ CONNECTION ] User wants to download %s ", file_name)
 
         path = f'{BASE_FS_FOLDER}/{file_name}'
 
@@ -82,7 +82,6 @@ class FSConnection:
         res = ProtocolBuilder.accept_download_request(file.file_size)
         self.connection.send(res)
 
-        print('REQUEST ACEPTADO')
         while not file.end_of_file():
 
             buffer = file.read_chunk(
