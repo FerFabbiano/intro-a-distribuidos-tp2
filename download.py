@@ -25,7 +25,7 @@ def main():
 
     # TODO: REVISAR ESTO
     if not os.path.dirname(destination_file_path):
-        print(
+        logging.warning(
             "[ WARN ] - "
             "Directory {} not found. Pleasea create directory "
             "or select another"
@@ -33,12 +33,12 @@ def main():
         )
         return
 
-    print("[ INFO ] - Got server port: {}".format(server_port))
-    print(
+    logging.info("[ INFO ] - Got server port: {}".format(server_port))
+    logging.debug(
         "[ INFO ] - Got destination file path: {}"
         .format(destination_file_path)
     )
-    print("[ INFO ] - Got file name: {}".format(file_name_dst))
+    logging.debug("[ INFO ] - Got file name: {}".format(file_name_dst))
 
     connection = Connection.connect(HOST, server_port)
     logging.debug("[ INFO ] - Nueva conexión generada con el servidor")

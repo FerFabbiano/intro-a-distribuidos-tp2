@@ -22,19 +22,20 @@ def main():
     file_name_dst = args.name
 
     if not FileReader.file_exists(source_file_path):
-        print(
+        logging.error(
             "[ ERROR ] - "
             "File {} not found. Please provide a correct file path "
             .format(source_file_path)
         )
         return
 
-    print("[ INFO ] - Got server port: {}".format(server_port))
-    print("[ INFO ] - Got source file path: {}".format(source_file_path))
-    print("[ INFO ] - Got file name: {}".format(file_name_dst))
+    logging.debug("[ INFO ] - Got server port: {}".format(server_port))
+    logging.debug(
+        "[ INFO ] - Got source file path: {}".format(source_file_path))
+    logging.debug("[ INFO ] - Got file name: {}".format(file_name_dst))
 
     connection = Connection.connect(HOST, server_port)
-    print("[ INFO ] - Nueva conexión generada con el servidor")
+    logging.debug("[ INFO ] - Nueva conexión generada con el servidor")
 
     client = ClientUploadConnection(
         connection,
@@ -42,13 +43,14 @@ def main():
         source_file_path
     )
 
-    print(
+    logging.debug(
         "[ INFO ] - Comienzo cierre de conexión con servidor."
         "Joineando threads."
     )
     client.run()
     client.close()
-    print("[ INFO ] - Thread joineados exitosamente! Terminando programa.")
+    logging.debug(
+        "[ INFO ] - Thread joineados exitosamente! Terminando programa.")
 
     return 0
 
