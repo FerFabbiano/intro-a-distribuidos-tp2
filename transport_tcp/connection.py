@@ -1,11 +1,12 @@
 "Mock Connection Object"
 
 import socket
+import logging
 
 
 class Connection():
     def __init__(self, address, tcpsocket):
-        print("[ PC ] - New Protocol Connection")
+        logging.debug("[ PC ] - New Protocol Connection")
         self.__socket = tcpsocket
         self.__address = address
 

@@ -1,7 +1,7 @@
 from queue import Queue
 import socket
 from threading import Thread
-
+import logging
 from .connection import Connection
 
 BUFFER_SIZE = 508
@@ -23,13 +23,13 @@ class Listener():
 
     def run(self):
         while(self.keep_running):
-            print("[ INFO IN PROTOCL ] - Waiting new message")
+            logging.debug("[ INFO IN PROTOCL ] - Waiting new message")
 
             try:
                 (clientsocket, address) = self.socket.accept()
                 self.new_connections.put(Connection(address, clientsocket))
             except Exception:
-                print("[ INFO PROTOCOL ] - Closing Socket Connection ")
+                logging.debug("[ INFO PROTOCOL ] - Closing Socket Connection ")
 
     def get_new_connection(self):
         return self.new_connections.get()
@@ -38,11 +38,13 @@ class Listener():
         self.socket.sendto(ACK, address)
 
     def close(self):
-        print("[ INFO PROTOCOL ] - Starting Closing protocol connection")
+        logging.debug(
+            "[ INFO PROTOCOL ] - Starting Closing protocol connection")
 
         self.keep_running = False
         self.socket.close()
         self.new_connections.put(None)
         self.thread.join()
 
-        print("[ INFO PROTOCOL ] - Finishing Closing protocol connection")
+        logging.debug(
+            "[ INFO PROTOCOL ] - Finishing Closing protocol connection")
