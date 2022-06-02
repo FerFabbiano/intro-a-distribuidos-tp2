@@ -102,7 +102,7 @@ class SelectiveRepeatRdpController(RdpController):
         Called by the protocol when a new ACK has been received.
         """
         with self.lock:
-            for seq_number in self._in_flight:
+            for seq_number in list(self._in_flight):
                 if seq_number == segment.sequence_number:
                     print("[RDP.on_ack] ACK MATCHES")
                     self._in_flight.pop(seq_number)  # Segment was received, no longer in flight
