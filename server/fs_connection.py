@@ -1,7 +1,7 @@
 from threading import Thread
 from application.file_utils import FileReader, FileWriter
 from application.protocol import Opcode, ProtocolBuilder
-from server.config import BASE_FS_FOLDER, BATCH_FILE_SIZE
+from server.config import BATCH_FILE_SIZE
 import logging
 from transport_tcp.connection import Connection
 
@@ -52,7 +52,7 @@ class FSConnection:
         res = ProtocolBuilder.accept_request()
         self.connection.send(res)
 
-        path = f'{BASE_FS_FOLDER}/{file_name}'
+        path = f'{self.baseFsFolder}/{file_name}'
 
         with FileWriter(path, file_size) as file:
             while not file.end_of_file():
@@ -71,7 +71,7 @@ class FSConnection:
 
         logging.info("[ CONNECTION ] User wants to download %s ", file_name)
 
-        path = f'{BASE_FS_FOLDER}/{file_name}'
+        path = f'{self.baseFsFolder}/{file_name}'
 
         if not FileReader.file_exists(path):
             res = ProtocolBuilder.file_not_exists()
