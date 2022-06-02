@@ -4,7 +4,6 @@ from client.client_upload import ClientUploadConnection
 from client.client_utils import build_upload_parser, finish_or_wait_quit
 from transport.connection import Connection
 import logging
-import logger
 
 HOST = "127.0.0.1"  # The server's hostname or IP address
 PORT = 65433  # The port used by the server
