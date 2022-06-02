@@ -2,7 +2,7 @@ from application.file_utils import FileReader
 from application.protocol import Opcode, ProtocolBuilder
 
 from transport.connection import Connection
-
+import logging
 CHUNK_SIZE = 500
 
 
@@ -31,7 +31,7 @@ class ClientUploadConnection:
                 self.upload_process()
 
         except ValueError:
-            print("[ ERROR ]: Invalid OPCODE")
+            logging.error('[ERROR]: Invalid OPCODE')
 
         self.keep_alive = False
 
@@ -44,17 +44,15 @@ class ClientUploadConnection:
         )
 
         print(
-            "[ INFO ] - Upload handshake msg: {}"
-            .format(handshake_msg_bytes)
+            logging.info("[ INFO ] - Upload handshake msg: {}"
+                         .format(handshake_msg_bytes))
         )
         self.connection.send(handshake_msg_bytes)
 
     def upload_process(self):
 
-        print(
-            "[ SUCCESS ] - "
-            "Connection accepted by server to upload file."
-        )
+        logging.debug("[ SUCCESS ] - "
+                      "Connection accepted by server to upload file.")
 
         with FileReader(self.source_file_path) as file:
             while self.keep_alive and not file.end_of_file():
@@ -63,16 +61,15 @@ class ClientUploadConnection:
                     CHUNK_SIZE
                 )
 
-                print(
-                    "[ INFO ] - Read {} bytes from file. Sending to server."
-                    .format(str(len(file_bytes)))
-                )
+                logging.debug("[ DEBUG] - Read {} bytes from file. Sending to server."
+                              .format(str(len(file_bytes))))
 
                 self.connection.send(file_bytes)
-                print(
-                    "[ SUCCESS ] - Sent {} bytes to server."
-                    .format(str(len(file_bytes)))
-                )
+                logging.debug("[ SUCCESS ] - Sent {} bytes to server."
+                              .format(str(len(file_bytes))))
+            logging.debug(
+                f'[Quitting upload loop] {self.keep_alive=} {file.end_of_file()=}')
+        self.connection.close()
 
     def close(self):
         self.keep_alive = False

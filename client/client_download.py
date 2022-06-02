@@ -1,7 +1,8 @@
 from application.file_utils import FileWriter
 from application.protocol import Opcode, ProtocolBuilder
 from server.config import BATCH_FILE_SIZE
-from transport_tcp.connection import Connection
+from transport.connection import Connection
+import logging
 
 
 class ClientDownloadConnection:
@@ -29,13 +30,11 @@ class ClientDownloadConnection:
                 self.download_process()
 
             elif action == Opcode.FileNotFound:
-                print(
-                    "[ WARN ] - "
-                    "File {} not found in server".format(self.file_name)
-                )
+                logging.warning("[ WARN ] - "
+                                "File {} not found in server".format(self.file_name))
 
         except ValueError:
-            print("[ ERROR ]: Invalid OPCODE")
+            logging.error("[ ERROR ]: Invalid OPCODE")
 
     def send_download_request(self):
         # Handshake to download
@@ -43,17 +42,15 @@ class ClientDownloadConnection:
             self.file_name
         )
 
-        print(
-            "[ INFO ] - Download handshake msg: {}"
-            .format(handshake_msg_bytes)
-        )
+        logging.debug("[ DEBUG] - Download handshake msg: {}"
+                      .format(handshake_msg_bytes))
+
         self.connection.send(handshake_msg_bytes)
 
     def download_process(self):
-        print(
-            "[ SUCCESS ] - "
-            "Connection accepted by server to download file."
-        )
+
+        logging.info("[ SUCCESS ] - "
+                     "Connection accepted by server to download file.")
 
         # Get file size
         fs_length_raw = self.connection.recv(4)
@@ -63,6 +60,8 @@ class ClientDownloadConnection:
             while self.keep_alive and not file.end_of_file():
                 buffer = self.connection.recv(BATCH_FILE_SIZE)
                 file.write_chunk(buffer)
+
+        self.connection.close()
 
     def close(self):
         self.keep_alive = False
