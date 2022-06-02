@@ -4,6 +4,8 @@ import select
 
 from threading import Thread, Timer
 from queue import Queue
+
+from .rdp.selective_repeat import SelectiveRepeatRdpController
 from .segment import Segment, Opcode
 from .rdp import StopAndWaitRdpController
 from .raw_connection import RawConnection
@@ -13,7 +15,7 @@ from .passive_connection import PassiveConnection
 
 
 class Listener:
-    def __init__(self, host, port, ControllerType = None):
+    def __init__(self, host, port, ControllerType=None):
         self.src_address = (host, port)
         self.socket = None
         self.keep_running = True
@@ -21,7 +23,8 @@ class Listener:
         self.connections = {}
         self._network_thread = None
         self._timer = Timer(NETWORK_TICK_SECONDS, self.on_tick)
-        self._ControllerType = ControllerType or StopAndWaitRdpController
+        # self._ControllerType = ControllerType or StopAndWaitRdpController
+        self._ControllerType = ControllerType or SelectiveRepeatRdpController
         self._closing = False
 
         self.start()
@@ -36,7 +39,7 @@ class Listener:
         self._network_thread = NetworkThread(self.socket, self.on_segment_received)
         self._timer.start()
         self._network_thread.start()
-    
+
     def on_tick(self):
         # Push timer events and do some clean up
         connections_to_remove = []
@@ -49,7 +52,7 @@ class Listener:
         # Remove old connections
         for address in connections_to_remove:
             self.connections.pop(address)
-        
+
         if not self._closing:
             self._timer = Timer(NETWORK_TICK_SECONDS, self.on_tick).start()
 
@@ -65,18 +68,18 @@ class Listener:
             )
             self.new_connections.put(self.connections[remote_address])
         else:
-            print(f"[Listener@{remote_address}] Segment received for unknown connection")            
+            print(f"[Listener@{remote_address}] Segment received for unknown connection")
 
     def get_new_connection(self):
         return self.new_connections.get()
 
     def close(self):
         if (
-            not self.socket
-            or not self._network_thread
+                not self.socket
+                or not self._network_thread
         ):
             raise Exception("The server is not running!")
-        
+
         self._closing = True
 
         self.keep_running = False
