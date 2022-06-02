@@ -12,6 +12,7 @@ from .raw_connection import RawConnection
 from .network_thread import NetworkThread
 from .connection import NETWORK_TICK_SECONDS
 from .passive_connection import PassiveConnection
+import logging
 
 
 class Listener:
@@ -36,7 +37,8 @@ class Listener:
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.socket.bind(self.src_address)
         self._timer = Timer(NETWORK_TICK_SECONDS, self.on_tick)
-        self._network_thread = NetworkThread(self.socket, self.on_segment_received)
+        self._network_thread = NetworkThread(
+            self.socket, self.on_segment_received)
         self._timer.start()
         self._network_thread.start()
 
@@ -58,17 +60,21 @@ class Listener:
 
     def on_segment_received(self, segment, remote_address):
         if remote_address in self.connections:
-            self.connections[remote_address].on_segment_received(segment, remote_address)
+            self.connections[remote_address].on_segment_received(
+                segment, remote_address)
         elif segment.opcode == Opcode.NewConnection:
-            print("[Listener] New connection from: ", remote_address)
+            logging.info(
+                "[Listener] New connection from: {} ".format(remote_address))
             self.connections[remote_address] = PassiveConnection(
                 remote_address,
-                self._ControllerType(RawConnection(self.socket, remote_address)),
+                self._ControllerType(RawConnection(
+                    self.socket, remote_address)),
                 segment
             )
             self.new_connections.put(self.connections[remote_address])
         else:
-            print(f"[Listener@{remote_address}] Segment received for unknown connection")
+            logging.info(
+                f"[Listener@{remote_address}] Segment received for unknown connection")
 
     def get_new_connection(self):
         return self.new_connections.get()
@@ -83,8 +89,5 @@ class Listener:
         self._closing = True
 
         self.keep_running = False
-        print("after self.keep_running = False")
         self.new_connections.put(None)
-        print("after self.new_connections.put(None)")
         self._network_thread.stop()
-        print("after self.network_thread.join()")
