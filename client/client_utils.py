@@ -1,20 +1,26 @@
 import argparse
 import sys
 import select
+import logging
 
 
 def build_upload_parser():
     my_parser = argparse.ArgumentParser()
 
     group = my_parser.add_mutually_exclusive_group()
+
     group.add_argument(
-        "-v", "--verbose",
-        help="increase output verbosity",
-        action="store_true"
+        '-v', '--debug',
+        help="Print lots of debugging statements",
+        action="store_const", dest="loglevel", const=logging.DEBUG,
+        default=logging.INFO,
     )
     group.add_argument(
-        "-q", "--quiet", help="decrease output verbosity", action="store_true"
+        '-q', '--verbose',
+        help="Be verbose",
+        action="store_const", dest="loglevel", const=logging.WARNING,
     )
+
     my_parser.add_argument(
         "-H",
         "--host",
