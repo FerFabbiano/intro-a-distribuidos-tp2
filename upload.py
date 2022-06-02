@@ -3,6 +3,8 @@ from application.file_utils import FileReader
 from client.client_upload import ClientUploadConnection
 from client.client_utils import build_upload_parser, finish_or_wait_quit
 from transport.connection import Connection
+import logging
+import logger
 
 HOST = "127.0.0.1"  # The server's hostname or IP address
 PORT = 65433  # The port used by the server
@@ -11,6 +13,10 @@ BUFFER_SIZE = 508
 
 def main():
     args = build_upload_parser().parse_args()
+
+    logging.basicConfig(
+        format='%(asctime)s - %(message)s', datefmt='%H:%M:%S',
+        level=args.loglevel)
 
     server_port = int(args.port)
     source_file_path = args.src
