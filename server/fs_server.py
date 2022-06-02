@@ -1,18 +1,18 @@
 import os
-from server.config import BASE_FS_FOLDER
 from server.fs_connection import FSConnection
 from transport.listener import Listener
 import logging
 
 
 class FSServer:
-    def __init__(self, host, port):
+    def __init__(self, host, port, baseFsFolder):
 
         self.keep_running = True
         self.connections = {}
+        self.baseFsFolder = baseFsFolder
 
-        if not os.path.exists(BASE_FS_FOLDER):
-            os.makedirs(BASE_FS_FOLDER)
+        if not os.path.exists(baseFsFolder):
+            os.makedirs(baseFsFolder)
 
         self.listener = Listener(host, port)
 
@@ -34,7 +34,7 @@ class FSServer:
             # We create one
             if not self.connections.get(new_connection.address):
                 self.connections[new_connection.address] = FSConnection(
-                    new_connection)
+                    new_connection, self.baseFsFolder)
 
     def stop(self):
 
