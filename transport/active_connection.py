@@ -8,14 +8,13 @@ from .network_thread import NetworkThread
 from transport.segment import Segment, Opcode
 import threading
 
-from .rdp.selective_repeat import SelectiveRepeatRdpController
+from .rdt_controller import DefaultRdtController
 
 
 class ActiveConnection(Connection):
     def __init__(self, host, port, ControllerType=None):
         if ControllerType is None:
-            # ControllerType = StopAndWaitRdpController
-            ControllerType = SelectiveRepeatRdpController
+            ControllerType = DefaultRdtController
 
         self._recv_buffer = bytes()
         self._timer = threading.Timer(NETWORK_TICK_SECONDS, self.on_tick)
