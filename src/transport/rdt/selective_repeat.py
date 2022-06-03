@@ -61,7 +61,7 @@ class SelectiveRepeatRdtController(RdtController):
 
             # find offset of segment inside recv window
             rwnd_offset = segment.sequence_number - \
-                self._recv_sequence_number - 1
+                          self._recv_sequence_number - 1
 
             if ((0 <= rwnd_offset < self._rwnd_size)
                     and self._recv_window[rwnd_offset] is None):
@@ -115,7 +115,6 @@ class SelectiveRepeatRdtController(RdtController):
     def on_ack_received(self, ack):
         with self.lock:
             if not self._send_window:
-                print('[SR.on_ack] Got ACK but no in-flight segments')
                 return
 
             # The first seqnum in our flight window is the window_base,
@@ -123,9 +122,9 @@ class SelectiveRepeatRdtController(RdtController):
             window_base = self._send_window[0].sequence_number
 
             if ack.sequence_number < window_base:
-                print(
-                    f'''[SR.on_ack] Got ACK for old packet
-                     {ack.sequence_number=}, window_base={window_base}''')
+                # print(
+                #    f'''[SR.on_ack] Got ACK for old packet
+                #     {ack.sequence_number=}, window_base={window_base}''')
                 return
 
             if (window_base <= ack.sequence_number <
@@ -137,7 +136,7 @@ class SelectiveRepeatRdtController(RdtController):
                 print(
                     f'''[SR.on_ack] Got ACK from the future??
                      {ack.sequence_number=},
-                     window_limit={window_base+len(self._send_window)}''')
+                     window_limit={window_base + len(self._send_window)}''')
 
         self._update_send_window()
 
@@ -145,7 +144,6 @@ class SelectiveRepeatRdtController(RdtController):
         """
         Called by the protocol when a CLOSE has been received.
         """
-        print('[SR.on_close_received]')
         self._remote_end_closed = True
         self._send_ack(segment.sequence_number)
 

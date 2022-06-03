@@ -20,7 +20,6 @@ class FileReader():
         # self.file.seek(self.read_offset)
         buffer = self.file.read(chunk_size)
         self.read_offset += len(buffer)
-        # print(f'[FileReader.read_chunk] {self.read_offset=} {len(buffer)=}')
         logging.debug("[FileReader.read_chunk] {} {}".format(
             self.read_offset, len(buffer)))
 

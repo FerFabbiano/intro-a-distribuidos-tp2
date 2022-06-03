@@ -2,6 +2,7 @@ import time
 
 from .segment import Segment, Opcode
 import logging
+
 NETWORK_TICK_SECONDS = 0.010
 
 
@@ -60,9 +61,7 @@ class Connection:
         return buffer
 
     def close(self):
-        print('CLOSING RDT CONNECTION')
         self._controller.close()
-        print('RDT CONNECTION CLOSED')
 
     def is_alive(self):
         return self._controller.is_alive()

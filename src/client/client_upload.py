@@ -3,15 +3,16 @@ from application.protocol import Opcode, ProtocolBuilder
 
 from transport.connection import Connection
 import logging
+
 CHUNK_SIZE = 500
 
 
 class ClientUploadConnection:
     def __init__(
-        self,
-        connection: Connection,
-        file_name: str,
-        source_file_path: str,
+            self,
+            connection: Connection,
+            file_name: str,
+            source_file_path: str,
     ):
         self.connection = connection
         self.keep_alive = True
@@ -30,9 +31,7 @@ class ClientUploadConnection:
             if action == Opcode.Accepted:
                 self.upload_process()
 
-            print("END CONNECTION")
             self.connection.close()
-            print("ACA CONNECTION")
         except ValueError:
             logging.error('[ERROR]: Invalid OPCODE')
 
@@ -58,21 +57,13 @@ class ClientUploadConnection:
 
         with FileReader(self.source_file_path) as file:
             while self.keep_alive and not file.end_of_file():
-
                 file_bytes = file.read_chunk(
                     CHUNK_SIZE
                 )
 
-                logging.debug(
-                    "[ DEBUG] - Read {} bytes from file. Sending to server."
-                    .format(str(len(file_bytes))))
-
                 self.connection.send(file_bytes)
                 logging.debug("[ SUCCESS ] - Sent {} bytes to server."
                               .format(str(len(file_bytes))))
-            logging.debug(
-                f'[Quitting upload loop] {self.keep_alive=} \
-                {file.end_of_file()=}')
 
     def close(self):
         self.keep_alive = False

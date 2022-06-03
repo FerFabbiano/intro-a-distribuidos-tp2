@@ -25,7 +25,6 @@ class RawConnection:
     def _do_send_segment(self, segment):
         if PACKET_LOSS_ENABLED:
             if random.random() < PACKET_LOSS_RATE:
-                print(f'DROPPED: {repr(segment)}')
                 return
         logging.debug(f'L> {repr(segment)}')
         self.socket.sendto(segment.serialize(), self.destination_address)
