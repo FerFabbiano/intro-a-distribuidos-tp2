@@ -35,9 +35,6 @@ class FSConnection:
             self.is_dead = True
             self.connection.close()
 
-    def is_dead(self):
-        return self.is_dead
-
     def process_upload(self):
         fs_length_raw = self.connection.recv_exact(4)
         file_size = ProtocolBuilder.file_size_parser(fs_length_raw)
