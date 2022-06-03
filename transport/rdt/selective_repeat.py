@@ -49,7 +49,8 @@ class SelectiveRepeatRdtController(RdtController):
     def on_tick(self, current_time):
         with self.lock:
             for segment in self._send_window:
-                if segment.creation_time + TIME_TO_CONSIDER_LOST_SECS < time.time():
+                if (segment.creation_time +
+                        TIME_TO_CONSIDER_LOST_SECS < time.time()):
                     self._on_packet_lost(segment)
 
     def on_data_received(self, segment):
@@ -59,8 +60,9 @@ class SelectiveRepeatRdtController(RdtController):
             # Segment or None.
 
             # find offset of segment inside recv window
-            rwnd_offset = segment.sequence_number - self._recv_sequence_number - 1
-            if (0 <= rwnd_offset < self._rwnd_size) and self._recv_window[rwnd_offset] is None:
+            rwnd_offset = segment.sequence_number-self._recv_sequence_number - 1
+            if ((0 <= rwnd_offset < self._rwnd_size)
+                    and self._recv_window[rwnd_offset] is None):
                 # If it is inside the window, and we
                 # haven't received it yet, store it in the
                 # recv window.
@@ -120,16 +122,20 @@ class SelectiveRepeatRdtController(RdtController):
 
             if ack.sequence_number < window_base:
                 print(
-                    f'[SR.on_ack] Got ACK for old packet {ack.sequence_number=}, window_base={window_base}')
+                    f'''[SR.on_ack] Got ACK for old packet
+                     {ack.sequence_number=}, window_base={window_base}''')
                 return
 
-            if window_base <= ack.sequence_number < window_base + len(self._send_window):
+            if (window_base <= ack.sequence_number <
+                    window_base + len(self._send_window)):
                 # Got new ack, add it to the set
                 self._acks_received.add(ack.sequence_number)
 
             if ack.sequence_number >= window_base + len(self._send_window):
                 print(
-                    f'[SR.on_ack] Got ACK from the future?? {ack.sequence_number=}, window_limit={window_base+len(self._send_window)}')
+                    f'''[SR.on_ack] Got ACK from the future??
+                     {ack.sequence_number=},
+                     window_limit={window_base+len(self._send_window)}''')
 
         self._update_send_window()
 
@@ -218,7 +224,8 @@ class SelectiveRepeatRdtController(RdtController):
             self._send_window = []
             self._connection_dead = True
             raise Exception(
-                f"Segment {segment_lost} re-sent more than {MAX_RETRIES} times. Connection dead")
+                f'''Segment {segment_lost} re-sent more than
+                 {MAX_RETRIES} times. Connection dead''')
         else:
             self._network.send_segment(segment_lost)
             segment_lost.creation_time = time.time()

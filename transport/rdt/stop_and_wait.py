@@ -36,7 +36,8 @@ class StopAndWaitRdtController(RdtController):
     def on_tick(self, current_time):
         with self.lock:
             if self._in_flight is not None:
-                if self._in_flight.creation_time + TIME_TO_CONSIDER_LOST_SECS < time.time():
+                if (self._in_flight.creation_time +
+                        TIME_TO_CONSIDER_LOST_SECS < time.time()):
                     segment_lost = self._in_flight
                     self._on_packet_lost(segment_lost)
 
@@ -55,7 +56,7 @@ class StopAndWaitRdtController(RdtController):
             if self._sequence_number == segment.sequence_number + 1:
                 logging.debug("[RDP.on_ack] ACK MATCHES")
                 with self._in_flight_cv:
-                    self._in_flight = None  # Segment was received by the other end
+                    self._in_flight = None
                     self._in_flight_cv.notify()
             else:
                 logging.debug("[RDP.on_ack] ACK DOESN'T MATCH")
@@ -73,7 +74,8 @@ class StopAndWaitRdtController(RdtController):
             # Push segment to the network
             with self.lock:
                 assert len(
-                    segment.payload) <= self.mss, f'Segment size must not be greater than {self.mss}'
+                    segment.payload) <= self.mss, f'''Segment size
+                    must not be greater than {self.mss}'''
                 segment.sequence_number = self._sequence_number
                 self._sequence_number += 1
                 self._network.send_segment(segment)
@@ -99,7 +101,8 @@ class StopAndWaitRdtController(RdtController):
             with self._in_flight_cv:
                 self._in_flight_cv.notify()
             raise Exception(
-                f"Segment {segment_lost} re-sent more than {MAX_RETRIES} times. Connection dead")
+                f'''Segment {segment_lost} re-sent more
+                 than {MAX_RETRIES} times. Connection dead''')
         else:
             self._network.send_segment(segment_lost)
             segment_lost.creation_time = time.time()
