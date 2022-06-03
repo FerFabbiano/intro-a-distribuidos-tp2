@@ -16,6 +16,13 @@ class FSServer:
 
         self.listener = Listener(host, port)
 
+    def __clean_zombies(self):
+
+        for keyAddress, fsConnection in self.connections.items():
+            if not fsConnection.is_alive():
+                fsConnection.close()
+                del self.connections[keyAddress]
+
     def run(self):
         logging.debug("[ INFO ] - Running server")
 
@@ -28,13 +35,15 @@ class FSServer:
                 return
 
             logging.debug("[ INFO ] - Have New Connection from %s",
-                         str(new_connection))
+                          str(new_connection))
 
             # If we don't have a client connection with that specific address
             # We create one
             if not self.connections.get(new_connection.address):
                 self.connections[new_connection.address] = FSConnection(
                     new_connection, self.baseFsFolder)
+
+            self.__clean_zombies()
 
     def stop(self):
 
