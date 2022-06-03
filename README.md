@@ -6,9 +6,9 @@ Repositorio para el Trabajo Práctico 2 de la materia Introducción a los sistem
 
 #### Correr el servidor
 
-python3 server.py [-h] [-v │ -q] [-H ADDR] [-p PORT] [-s DIRPATH]
+python3 start-server.py [-h] [-v │ -q] [-H ADDR] [-p PORT] [-s DIRPATH]
 
-*e.g: python3 server.py  -H 127.0.0.1 -p 65434 -s files*
+*e.g: python3 start-server.py  -H 127.0.0.1 -p 65434 -s files*
 
 #### Hacer un upload desde un cliente
 
