@@ -5,8 +5,6 @@ from transport.connection import Connection
 import os
 import logging
 
-HOST = "127.0.0.1"  # The server's hostname or IP address
-PORT = 65434  # The port used by the server
 BUFFER_SIZE = 508
 
 
@@ -41,9 +39,9 @@ def main():
     logging.debug("[ INFO ] - Got file name: {}".format(file_name_dst))
 
     logging.info("[INFO] Se establecera una conexion con el host : {} y port: {}".format(
-        HOST, server_port))
+        args.host, server_port))
 
-    connection = Connection.connect(HOST, server_port)
+    connection = Connection.connect(args.host, server_port)
 
     client = ClientDownloadConnection(
         connection,
