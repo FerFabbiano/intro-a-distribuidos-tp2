@@ -4,11 +4,11 @@ from .segment import Opcode
 from threading import Timer
 import random
 
-FAKE_RTT_ENABLED = True
+FAKE_RTT_ENABLED = False
 FAKE_RTT_SECONDS = 0.40
 
-PACKET_LOSS_ENABLED = True
-PACKET_LOSS_RATE = 0.10
+PACKET_LOSS_ENABLED = False
+PACKET_LOSS_RATE = 0.02
 
 class RawConnection:
     def __init__(self, socket, destination_address):

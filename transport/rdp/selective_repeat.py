@@ -5,9 +5,9 @@ import logging
 from .rdp_controller import RdpController
 from transport.segment import Segment, Opcode
 
-TIME_TO_CONSIDER_LOST_SECS = 1
+TIME_TO_CONSIDER_LOST_SECS = 0.5
 MAX_RETRIES = 10
-SEND_WINDOW_SIZE = 128
+SEND_WINDOW_SIZE = 64
 RECV_WINDOW_SIZE = 2 * SEND_WINDOW_SIZE
 
 
@@ -32,6 +32,9 @@ class SelectiveRepeatRdpController(RdpController):
         self._connection_dead = False
         self.lock = threading.Lock()
         self._send_window_cv = threading.Condition(threading.Lock())
+
+        self._closing = False
+        self._remote_end_closed = False
 
     def do_active_handshake(self):
         self.send_segment(Segment(Opcode.NewConnection))
@@ -122,6 +125,14 @@ class SelectiveRepeatRdpController(RdpController):
                     f'[SR.on_ack] Got ACK from the future?? {ack.sequence_number=}, window_limit={window_base+len(self._send_window)}')
 
         self._update_send_window()
+    
+    def on_close_received(self, segment):
+        """
+        Called by the protocol when a CLOSE has been received.
+        """
+        print('[SR.on_close_received]')
+        self._remote_end_closed = True
+        self._send_ack(segment.sequence_number)
 
     def _update_send_window(self):
         """
@@ -160,6 +171,9 @@ class SelectiveRepeatRdpController(RdpController):
         This method will update the segment's sequence number
         to the correct value.
         """
+        if self._closing:
+            raise Exception("Trying to send a segment after closing the connection")
+        
         assert len(segment.payload) <= self.mss, \
             f'Segment size must not be greater than {self.mss}'
 
@@ -172,11 +186,15 @@ class SelectiveRepeatRdpController(RdpController):
                 self._send_sequence_number += 1
                 self._network.send_segment(segment)
                 self._send_window.append(segment)
+        return True
 
     def recv_segment(self) -> Segment:
         """
         Blocks until a segment is available to be read.
         """
+        if self._recv_queue.empty() and self._remote_end_closed:
+            return
+        
         return self._recv_queue.get()
 
     @property
@@ -209,4 +227,10 @@ class SelectiveRepeatRdpController(RdpController):
                 self._send_window_cv.wait()
 
     def close(self):
-        self._flush_flight_window()
+        if not self._closing:
+            self._flush_flight_window()
+            self.send_segment(Segment(Opcode.Close))
+            self._flush_flight_window()
+            self._closing = True
+            # "Time wait"
+            time.sleep(1.5 * TIME_TO_CONSIDER_LOST_SECS)

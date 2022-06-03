@@ -20,6 +20,12 @@
 # *loss* L> SEGMENTO(opcode=Ack, seq=1, payload_sz=0)
 # <R SEGMENTO(opcode=Data, payload_sz=4, payload="CHAU", seq=1)
 # L> SEGMENTO(opcode=Ack, seq=1, payload_sz=0)
+#
+# C> Segment(opcode=Close, seqnum)  # state = _closing
+# <S Segment(opcode=Close, seqnum)
+# <S Segment(opcode=Ack)            
+# ** time wait 2*rto **
+
 
 import struct
 import time

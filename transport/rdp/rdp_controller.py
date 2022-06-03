@@ -32,6 +32,12 @@ class RdpController:
         """
         pass
     
+    def on_close_received(self, segment):
+        """
+        Called by the protocol when a CLOSE has been received.
+        """
+        pass
+    
     def send_segment(self, segment: Segment):
         """
         Blocks until the segment is sent.
