@@ -1,7 +1,7 @@
 import time
 import socket
 
-from .rdp import RdpController, StopAndWaitRdpController
+from .rdt import RdtController, StopAndWaitRdtController
 from .raw_connection import RawConnection
 from .connection import Connection, NETWORK_TICK_SECONDS
 from .network_thread import NetworkThread

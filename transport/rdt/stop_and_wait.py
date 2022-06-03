@@ -2,14 +2,14 @@ import time
 import threading
 import queue
 import logging
-from .rdp_controller import RdpController
+from .rdt_controller import RdtController
 from transport.segment import Segment, Opcode
 
 TIME_TO_CONSIDER_LOST_SECS = 0.5
 MAX_RETRIES = 3
 
 
-class StopAndWaitRdpController(RdpController):
+class StopAndWaitRdtController(RdtController):
     def __init__(self, raw_connection):
         self._mss = 500
         self._in_flight = None

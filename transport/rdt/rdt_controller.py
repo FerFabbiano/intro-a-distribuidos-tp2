@@ -1,6 +1,6 @@
 from transport.segment import Segment
 
-class RdpController:
+class RdtController:
     def do_active_handshake(self):
         """
         Starts the handshake of an active (client-to-server) connection.
@@ -59,7 +59,7 @@ class RdpController:
         Returns the maximum size of a segment's payload, in bytes.
 
         This property is guaranteed to be constant for the whole
-        lifetime of the RdpController's instance.
+        lifetime of the RdtController's instance.
         """
         pass
     

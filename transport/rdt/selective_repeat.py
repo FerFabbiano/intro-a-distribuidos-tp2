@@ -2,7 +2,7 @@ import time
 import threading
 import queue
 import logging
-from .rdp_controller import RdpController
+from .rdt_controller import RdtController
 from transport.segment import Segment, Opcode
 
 TIME_TO_CONSIDER_LOST_SECS = 0.5
@@ -11,7 +11,7 @@ SEND_WINDOW_SIZE = 64
 RECV_WINDOW_SIZE = 2 * SEND_WINDOW_SIZE
 
 
-class SelectiveRepeatRdpController(RdpController):
+class SelectiveRepeatRdtController(RdtController):
     def __init__(self, raw_connection):
         self._mss = 500
 
