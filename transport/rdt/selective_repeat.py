@@ -5,7 +5,7 @@ import logging
 from transport.rdt import rdtController
 from transport.segment import Segment, Opcode
 
-TIME_TO_CONSIDER_LOST_SECS = 10
+TIME_TO_CONSIDER_LOST_SECS = 0.5
 MAX_RETRIES = 3
 SEND_WINDOW_SIZE = 4
 RECV_WINDOW_SIZE = 4
@@ -146,11 +146,9 @@ class SelectiveRepeatrdtController(rdtController):
         """
         print(f'Tratando de mandar segmento: {self._sequence_number}')
         with self._send_window_cv:
-
             send_window_end = self._send_window_base + SEND_WINDOW_SIZE - 1
 
             while not (self._send_window_base <= self._sequence_number <= send_window_end):
-
                 # the seq number is not within the send window, the packet has to wait
                 self._send_window_cv.wait()
                 send_window_end = self._send_window_base + SEND_WINDOW_SIZE - 1
