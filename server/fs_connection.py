@@ -39,34 +39,33 @@ class FSConnection:
         return self.is_dead
 
     def process_upload(self):
-        pass
-        # fs_length_raw = self.connection.recv_exact(4)
-        # file_size = ProtocolBuilder.file_size_parser(fs_length_raw)
-        # logging.debug('FILE SIZE: %i', file_size)
+        fs_length_raw = self.connection.recv_exact(4)
+        file_size = ProtocolBuilder.file_size_parser(fs_length_raw)
+        logging.debug('FILE SIZE: %i', file_size)
 
-        # fn_length_raw = self.connection.recv_exact(1)
-        # fn_length = ProtocolBuilder.fn_size_parser(fn_length_raw)
-        # logging.debug(' FN LENGTH: %i', fn_length)
+        fn_length_raw = self.connection.recv_exact(1)
+        fn_length = ProtocolBuilder.fn_size_parser(fn_length_raw)
+        logging.debug(' FN LENGTH: %i', fn_length)
 
-        # file_name_raw = self.connection.recv_exact(fn_length)
-        # file_name = ProtocolBuilder.fn_parser(file_name_raw)
-        # logging.debug('FN: %s', file_name)
+        file_name_raw = self.connection.recv_exact(fn_length)
+        file_name = ProtocolBuilder.fn_parser(file_name_raw)
+        logging.debug('FN: %s', file_name)
 
-        # logging.info(
-        #     "[ CONNECTION ] User wants to upload %s with size: %i", file_name, file_size)
+        logging.info(
+            "[ CONNECTION ] User wants to upload %s with size: %i", file_name, file_size)
 
-        # # Accept request
-        # res = ProtocolBuilder.accept_request()
-        # self.connection.send(res)
+        # Accept request
+        res = ProtocolBuilder.accept_request()
+        self.connection.send(res)
 
-        # path = f'{self.baseFsFolder}/{file_name}'
+        path = f'{self.baseFsFolder}/{file_name}'
 
-        # with FileWriter(path, file_size) as file:
-        #     while not file.end_of_file():
-        #         logging.debug("[ CONNECTION ] waiting for data")
-        #         buffer = self.connection.recv(BATCH_FILE_SIZE)
-        #         file.write_chunk(buffer)
-        # logging.debug('[ CONNECTION ] file written')
+        with FileWriter(path, file_size) as file:
+            while not file.end_of_file():
+                logging.debug("[ CONNECTION ] waiting for data")
+                buffer = self.connection.recv(BATCH_FILE_SIZE)
+                file.write_chunk(buffer)
+        logging.debug('[ CONNECTION ] file written')
 
     def process_download(self):
         fn_length_raw = self.connection.recv(1)
