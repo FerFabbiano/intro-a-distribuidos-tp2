@@ -53,7 +53,8 @@ class Listener:
 
         # Remove old connections
         for address in connections_to_remove:
-            logging.debug("Closing connection {} because it is not longer alive".format(str(address)))
+            logging.debug(
+                "Closing connection {} because it is not longer alive".format(str(address)))
             self.connections.pop(address)
 
         if not self._closing:
@@ -63,7 +64,7 @@ class Listener:
         if remote_address in self.connections:
             self.connections[remote_address].on_segment_received(
                 segment, remote_address)
-        
+
         elif segment.opcode == Opcode.NewConnection:
             logging.info(
                 "[Listener] New connection from: {} ".format(remote_address))
@@ -74,7 +75,7 @@ class Listener:
                 segment
             )
             self.new_connections.put(self.connections[remote_address])
-        
+
         else:
             logging.debug(
                 f"[Listener@{remote_address}] Segment received for unknown connection")

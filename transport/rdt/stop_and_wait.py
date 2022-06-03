@@ -98,7 +98,8 @@ class StopAndWaitRdtController(RdtController):
             self._in_flight = None
             with self._in_flight_cv:
                 self._in_flight_cv.notify()
-            raise Exception(f"Segment {segment_lost} re-sent more than {MAX_RETRIES} times. Connection dead")
+            raise Exception(
+                f"Segment {segment_lost} re-sent more than {MAX_RETRIES} times. Connection dead")
         else:
             self._network.send_segment(segment_lost)
             segment_lost.creation_time = time.time()

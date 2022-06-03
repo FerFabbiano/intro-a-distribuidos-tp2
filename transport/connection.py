@@ -39,7 +39,7 @@ class Connection:
     def send(self, data: bytes) -> int:
         for i in range(0, len(data), self._controller.mss):
             if not self._controller.send_segment(
-                Segment(Opcode.Data, data[i:(i + self._controller.mss)])):
+                    Segment(Opcode.Data, data[i:(i + self._controller.mss)])):
                 return i
         return len(data)
 

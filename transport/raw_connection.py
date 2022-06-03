@@ -10,6 +10,7 @@ FAKE_RTT_SECONDS = 0.40
 PACKET_LOSS_ENABLED = False
 PACKET_LOSS_RATE = 0.02
 
+
 class RawConnection:
     def __init__(self, socket, destination_address):
         self.socket = socket

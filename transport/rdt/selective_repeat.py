@@ -54,24 +54,29 @@ class SelectiveRepeatRdtController(RdtController):
 
     def on_data_received(self, segment):
         with self.lock:
-            # The receive window always has _rwnd_size items, which could be an instance of
+            # The receive window always has _rwnd_size
+            # items, which could be an instance of
             # Segment or None.
 
             # find offset of segment inside recv window
             rwnd_offset = segment.sequence_number - self._recv_sequence_number - 1
             if (0 <= rwnd_offset < self._rwnd_size) and self._recv_window[rwnd_offset] is None:
-                # If it is inside the window, and we haven't received it yet, store it in the
+                # If it is inside the window, and we
+                # haven't received it yet, store it in the
                 # recv window.
                 self._recv_window[rwnd_offset] = segment
 
-            # If the offset of the segment received does not go beyond the size of the window,
+            # If the offset of the segment received
+            #  does not go beyond the size of the window,
             # we need to send an ACK for it.
-            # If 0 <= rwnd_offset < rwnd_size, then we have stored it in the recv_window
+            # If 0 <= rwnd_offset < rwnd_size,
+            # then we have stored it in the recv_window
             # if rwnd_offset < 0, then a previous ACK may have been lost.
             if rwnd_offset < self._rwnd_size:
                 self._send_ack(segment.sequence_number)
 
-            # Once we stored the new segment and send the corresponding ACK, we need to see
+            # Once we stored the new segment
+            # and send the corresponding ACK, we need to see
             # if we can increment the 'recv window base'.
             self._update_recv_window()
 
@@ -82,14 +87,16 @@ class SelectiveRepeatRdtController(RdtController):
         """
         window_offset = 0
         for segment in self._recv_window:
-            # The receive window is sorted by sequence number, so we increment the offset
+            # The receive window is sorted
+            # by sequence number, so we increment the offset
             # until we find a missing segment in the window.
             if not segment:
                 break
 
             window_offset += 1
 
-        if window_offset > 0:  # If we can push at least one segment to the upper layer...
+        if window_offset > 0:  # If we can push at least
+            # one segment to the upper layer...
             # Remove the segments from the window...
             received_segments = self._recv_window[:window_offset]
             self._recv_window = self._recv_window[window_offset:] + [
@@ -125,7 +132,7 @@ class SelectiveRepeatRdtController(RdtController):
                     f'[SR.on_ack] Got ACK from the future?? {ack.sequence_number=}, window_limit={window_base+len(self._send_window)}')
 
         self._update_send_window()
-    
+
     def on_close_received(self, segment):
         """
         Called by the protocol when a CLOSE has been received.
@@ -172,8 +179,9 @@ class SelectiveRepeatRdtController(RdtController):
         to the correct value.
         """
         if self._closing:
-            raise Exception("Trying to send a segment after closing the connection")
-        
+            raise Exception(
+                "Trying to send a segment after closing the connection")
+
         assert len(segment.payload) <= self.mss, \
             f'Segment size must not be greater than {self.mss}'
 
@@ -194,7 +202,7 @@ class SelectiveRepeatRdtController(RdtController):
         """
         if self._recv_queue.empty() and self._remote_end_closed:
             return
-        
+
         return self._recv_queue.get()
 
     @property
