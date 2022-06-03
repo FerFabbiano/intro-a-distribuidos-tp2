@@ -15,4 +15,4 @@ class PassiveConnection(Connection):
         self._controller.do_passive_handshake(welcome_segment)
 
     def close(self):
-        pass
+        self._controller.close()
