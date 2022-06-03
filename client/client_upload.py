@@ -30,6 +30,9 @@ class ClientUploadConnection:
             if action == Opcode.Accepted:
                 self.upload_process()
 
+            print("END CONNECTION")
+            self.connection.close()
+            print("ACA CONNECTION")
         except ValueError:
             logging.error('[ERROR]: Invalid OPCODE')
 
@@ -43,10 +46,9 @@ class ClientUploadConnection:
             file_size
         )
 
-        print(
-            logging.info("[ INFO ] - Upload handshake msg: {}"
-                         .format(handshake_msg_bytes))
-        )
+        logging.debug("[ INFO ] - Upload handshake msg: {}"
+                      .format(handshake_msg_bytes))
+
         self.connection.send(handshake_msg_bytes)
 
     def upload_process(self):
@@ -69,7 +71,6 @@ class ClientUploadConnection:
                               .format(str(len(file_bytes))))
             logging.debug(
                 f'[Quitting upload loop] {self.keep_alive=} {file.end_of_file()=}')
-        self.connection.close()
 
     def close(self):
         self.keep_alive = False

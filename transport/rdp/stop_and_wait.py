@@ -93,7 +93,7 @@ class StopAndWaitRdpController(RdpController):
         return not self._connection_dead
 
     def _on_packet_lost(self, segment_lost):
-        logging.info("[RDP.on_loss] {}".format(segment_lost))
+        logging.debug("[RDP.on_loss] {}".format(segment_lost))
         if segment_lost.retries >= MAX_RETRIES:
             self._in_flight = None
             with self._in_flight_cv:

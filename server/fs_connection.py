@@ -3,18 +3,19 @@ from application.file_utils import FileReader, FileWriter
 from application.protocol import Opcode, ProtocolBuilder
 from server.config import BATCH_FILE_SIZE
 import logging
-from transport_tcp.connection import Connection
+from transport.connection import Connection
 
 
 class FSConnection:
     def __init__(self, connection: Connection, baseFsFolder):
+        self.is_dead = False
         self.connection = connection
         self.baseFsFolder = baseFsFolder
         self.thread = Thread(target=self.run)
         self.thread.start()
 
     def run(self):
-        logging.info("[ INFO NEW CONNECTION] - Running the new client")
+        logging.debug("[ INFO NEW CONNECTION] - Running the new client")
 
         opcode = self.connection.recv(1)
         try:
@@ -31,6 +32,7 @@ class FSConnection:
         except ValueError:
             logging.error("[ CONNECTION ]: Invalid OPCODE {}".format(opcode))
         finally:
+            self.is_dead = True
             self.connection.close()
 
     def process_upload(self):

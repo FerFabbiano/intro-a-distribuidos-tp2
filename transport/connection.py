@@ -32,10 +32,10 @@ class Connection:
         elif segment.opcode == Opcode.Ack:
             self._controller.on_ack_received(segment)
         elif segment.opcode == Opcode.Close:
-            logging.info(
+            logging.debug(
                 '[Connection.on_segment_received] Connection close not implemented')
         else:
-            print("[Connection.on_segment_received] Unknown opcode: ", segment)
+            logging.debug("[Connection.on_segment_received] Unknown opcode ")
 
     def send(self, data: bytes) -> int:
         for i in range(0, len(data), self._controller.mss):
