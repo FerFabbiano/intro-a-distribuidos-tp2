@@ -62,3 +62,9 @@ class RdpController:
         Returns True if the connection is still alive.
         """
         pass
+
+    def close(self):
+        """
+        Closes the connection.
+        """
+        pass

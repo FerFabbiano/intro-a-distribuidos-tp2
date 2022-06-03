@@ -29,11 +29,6 @@ class StopAndWaitRdpController(RdpController):
             while self._in_flight is not None:
                 self._in_flight_cv.wait()
 
-        # Since connection was not established yet, we should check if we've got an
-        # ACK of if we should consider the connection as dead.
-        if self._connection_dead:
-            raise Exception('Could not establish a connection to the server')
-
     def do_passive_handshake(self, welcome_segment):
         self._recv_sequence_number = welcome_segment.sequence_number
         self._send_ack(welcome_segment.sequence_number)
@@ -43,7 +38,6 @@ class StopAndWaitRdpController(RdpController):
             if self._in_flight is not None:
                 if self._in_flight.creation_time + TIME_TO_CONSIDER_LOST_SECS < time.time():
                     segment_lost = self._in_flight
-                    self._in_flight = None
                     self._on_packet_lost(segment_lost)
 
     def on_data_received(self, segment):
@@ -101,14 +95,14 @@ class StopAndWaitRdpController(RdpController):
     def _on_packet_lost(self, segment_lost):
         logging.debug("[RDP.on_loss] {}".format(segment_lost))
         if segment_lost.retries >= MAX_RETRIES:
-            self._connection_dead = True
+            self._in_flight = None
             with self._in_flight_cv:
                 self._in_flight_cv.notify()
+            raise Exception(f"Segment {segment_lost} re-sent more than {MAX_RETRIES} times. Connection dead")
         else:
             self._network.send_segment(segment_lost)
             segment_lost.creation_time = time.time()
             segment_lost.retries += 1
-            self._in_flight = segment_lost
 
     def _send_ack(self, ack_number):
         ack = Segment(Opcode.Ack)

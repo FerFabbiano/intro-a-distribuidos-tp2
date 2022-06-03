@@ -39,6 +39,7 @@ class ActiveConnection(Connection):
                 NETWORK_TICK_SECONDS, self.on_tick).start()
 
     def close(self):
+        self._controller.close()
         self._closing = True
         self._network_thread.stop()
         self._socket.close()
