@@ -15,15 +15,18 @@ class SelectiveRepeatRdpController(RdpController):
     def __init__(self, raw_connection):
         self._mss = 500
 
+        # state as sender
         self._send_window = []
         self._swnd_size = SEND_WINDOW_SIZE  # Max size for _send_window
         self._acks_received = set()
         self._send_sequence_number = 1
         
+        # state as receiver
         self._rwnd_size = RECV_WINDOW_SIZE  # Max size of _recv_window
         self._recv_window = [None] * self._rwnd_size
         self._recv_sequence_number = 0
 
+        # state for upper layer / concurrency
         self._recv_queue = queue.Queue()
         self._network = raw_connection
         self._connection_dead = False
@@ -48,29 +51,50 @@ class SelectiveRepeatRdpController(RdpController):
 
     def on_data_received(self, segment):
         with self.lock:
+            # The receive window always has _rwnd_size items, which could be an instance of
+            # Segment or None. 
+
+            # find offset of segment inside recv window
             rwnd_offset = segment.sequence_number - self._recv_sequence_number - 1
             if (0 <= rwnd_offset < self._rwnd_size) and self._recv_window[rwnd_offset] is None:
+                # If it is inside the window, and we haven't received it yet, store it in the
+                # recv window.
                 self._recv_window[rwnd_offset] = segment
             
+            # If the offset of the segment received does not go beyond the size of the window, 
+            # we need to send an ACK for it.
+            # If 0 <= rwnd_offset < rwnd_size, then we have stored it in the recv_window
+            # if rwnd_offset < 0, then a previous ACK may have been lost.
             if rwnd_offset < self._rwnd_size:
                 self._send_ack(segment.sequence_number)
             
+            # Once we stored the new segment and send the corresponding ACK, we need to see
+            # if we can increment the 'recv window base'.
             self._update_recv_window()
     
     def _update_recv_window(self):
+        """
+        Checks if it can push any segment from the receive window to the upper
+        layer.
+        """
         window_offset = 0
         for segment in self._recv_window:
+            # The receive window is sorted by sequence number, so we increment the offset
+            # until we find a missing segment in the window.
             if not segment:
                 break
             
             window_offset += 1
         
-        if window_offset > 0:
+        if window_offset > 0: # If we can push at least one segment to the upper layer...
+            # Remove the segments from the window...
             received_segments = self._recv_window[:window_offset]
             self._recv_window = self._recv_window[window_offset:] + [None] * window_offset
+
+            # update the 'recv window base'...
             self._recv_sequence_number = received_segments[-1].sequence_number
             for segment in received_segments:
-                print(f'Putting segment {segment}')
+                # and send the segments to the upper layer.
                 self._recv_queue.put(segment)
 
     def on_ack_received(self, ack):
@@ -97,21 +121,33 @@ class SelectiveRepeatRdpController(RdpController):
         self._update_send_window()
     
     def _update_send_window(self):
-        # Global mutex must not be locked!!!
-        window_offset = 0
-        for segment in self._send_window:
-            if segment.sequence_number not in self._acks_received:
-                break
-            
-            self._acks_received.remove(segment.sequence_number)
-            window_offset += 1
-        
-        if window_offset == 0:
-            return
+        """
+        Checks what ACKs have been received and updates the send window 
+        accordingly.
 
+        Note that the global instance lock must not be held when calling
+        this method, otherwise a deadlock may occur.s
+        """
+        with self.lock:
+            window_offset = 0
+            for segment in self._send_window:  
+                # The send window is sorted by seqnum. We increment the 
+                # window_offset as long as we have the ACK for that segment.
+                if segment.sequence_number not in self._acks_received:
+                    break
+                
+                # "Consume" the ACK
+                self._acks_received.remove(segment.sequence_number)
+                window_offset += 1
+            
+            if window_offset == 0:
+                return
+            
+            # Remove ACK'd segments from the send window...
+            self._send_window = self._send_window[window_offset:]
+
+        # and notify that there was a change in the window
         with self._send_window_cv:
-            with self.lock:
-                self._send_window = self._send_window[window_offset:]
             self._send_window_cv.notify()
 
     def send_segment(self, segment: Segment):
@@ -121,13 +157,14 @@ class SelectiveRepeatRdpController(RdpController):
         This method will update the segment's sequence number
         to the correct value.
         """
+        assert len(segment.payload) <= self.mss, \
+            f'Segment size must not be greater than {self.mss}'
+        
         with self._send_window_cv:
             while len(self._send_window) >= self._swnd_size:
                 self._send_window_cv.wait()
-            # Push segment to the network
+            
             with self.lock:
-                assert len(
-                    segment.payload) <= self.mss, f'Segment size must not be greater than {self.mss}'
                 segment.sequence_number = self._send_sequence_number
                 self._send_sequence_number += 1
                 self._network.send_segment(segment)
