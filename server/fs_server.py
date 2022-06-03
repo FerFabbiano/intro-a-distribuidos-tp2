@@ -18,9 +18,10 @@ class FSServer:
 
     def __clean_zombies(self):
 
-        for keyAddress, fsConnection in self.connections.items():
-            if fsConnection.is_dead:
-                fsConnection.close()
+        for keyAddress in list(self.connections.keys()):
+            con = self.connections[keyAddress]
+            if con.is_dead:
+                con.close()
                 del self.connections[keyAddress]
 
     def run(self):

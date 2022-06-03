@@ -116,28 +116,26 @@ class SelectiveRepeatRdpController(RdpController):
         """
         Called by the protocol when a new ACK has been received.
         """
-        logging.debug("ACK received with sequence number {}".format(segment.sequence_number))
-        
+
         with self.lock:
             if segment.sequence_number in self._in_flight:
                 self._in_flight.pop(segment.sequence_number)
-                logging.debug("ACK matches, popping segment from in flight segments".format(segment.sequence_number))
- 
-            # move send window base to the lowest unacknowledged sequence number
-            with self._send_window_cv:
-                logging.debug("Cheque si debo mover base de la send window: {} = {}?".format(segment.sequence_number, self._send_window_base))
-                if segment.sequence_number == self._send_window_base:
-                    
-                    if len(self._in_flight) > 0:
-                        self._send_window_base = min(self._in_flight.keys())
-                        logging.debug("Setting window base to {}".format(self._send_window_base))
-                    
-                    else:
-                        logging.debug("No segments in flight. Updating window base in 1. New send_window_base {}".format(self._send_window_base))
-                        self._send_window_base += 1
+                logging.debug(
+                    f'[ACK RECV]  Pop from InFlight : {segment.sequence_number}')
 
-                    logging.debug("Send_window_base was updated. Must notify to waiting CV")
-                    self._send_window_cv.notify()
+        # move send window base to the lowest unacknowledged sequence number
+        with self._send_window_cv:
+            if segment.sequence_number == self._send_window_base:
+
+                if len(self._in_flight) > 0:
+                    self._send_window_base = min(self._in_flight.keys())
+
+                else:
+                    self._send_window_base += 1
+
+                logging.debug(
+                    f'[ACK RECV] - Window Update: {self._send_window_base}')
+                self._send_window_cv.notify()
 
     def send_segment(self, segment: Segment):
         """
@@ -146,12 +144,10 @@ class SelectiveRepeatRdpController(RdpController):
         This method will update the segment's sequence number
         to the correct value.
         """
+        print(f'Tratando de mandar segmento: {self._sequence_number}')
         with self._send_window_cv:
 
             send_window_end = self._send_window_base + SEND_WINDOW_SIZE - 1
-
-            logging.debug("Trying to send segment with sequence number {}.".format(self._sequence_number))
-            logging.debug("Send window has values bewtween {} and {}.".format(str(self._send_window_base), str(send_window_end)))
 
             while not (self._send_window_base <= self._sequence_number <= send_window_end):
 
@@ -159,20 +155,20 @@ class SelectiveRepeatRdpController(RdpController):
                 self._send_window_cv.wait()
                 send_window_end = self._send_window_base + SEND_WINDOW_SIZE - 1
 
-            with self.lock:
-                assert len(
-                    segment.payload) <= self.mss, f'Segment size must not be greater than {self.mss}'
-                
-                segment.sequence_number = self._sequence_number
-                logging.debug("Enviando segmento: {}".format(self._sequence_number))
-                self._sequence_number += 1
-                # rand = random()
+        with self.lock:
+            assert len(
+                segment.payload) <= self.mss, f'Segment size must not be greater than {self.mss}'
 
-                self._network.send_segment(segment)
+            segment.sequence_number = self._sequence_number
+            self._sequence_number += 1
+            # rand = random()
 
-                logging.debug("Segment {} sent successfully".format(str(segment.sequence_number)))
+            self._network.send_segment(segment)
 
-                self._in_flight[segment.sequence_number] = segment
+            logging.debug("Segment {} sent successfully".format(
+                str(segment.sequence_number)))
+
+            self._in_flight[segment.sequence_number] = segment
 
     def recv_segment(self) -> Segment:
         """
@@ -200,12 +196,12 @@ class SelectiveRepeatRdpController(RdpController):
 
     def _on_packet_lost(self, segment_lost):
         logging.debug("[RDP.on_loss] {}".format(segment_lost))
-        
+
         if segment_lost.retries >= MAX_RETRIES:
-            logging.debug("Max retries achieved for segment. Setting connection dead to True.")
-            
+            logging.debug(
+                "Max retries achieved for segment. Setting connection dead to True.")
             self._connection_dead = True
-            
+
             with self._send_window_cv:
                 self._send_window_cv.notify()
         else:
