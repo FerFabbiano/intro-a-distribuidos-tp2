@@ -23,3 +23,8 @@ python3 upload.py [-h] [-v │ -q] [-H ADDR] [-p PORT] [-s FILEPATH] [-n FILENAM
 python3 download.py [-h] [-v │ -q] [-H ADDR] [-p PORT] [-s FILEPATH] [-n FILENAME]
 
 *e.g: python3 download.py -H 127.0.0.1 -p 65434 -d ../files_downloaded_client/upserver.txt -n upload.txt*
+
+
+### Cambiar a stop&wait
+
+En la carpeta src/transport se encuentra un archivo "rdt_controller.py" que determina si se ejecutara selective repeat o stop&wait, en el caso que se quiera ejecutar el stop&wait hay que establecerlo como DefaultRdtController
