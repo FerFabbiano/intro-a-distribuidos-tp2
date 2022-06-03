@@ -5,7 +5,7 @@ import logging
 from .rdt_controller import rdtController
 from transport.segment import Segment, Opcode
 
-TIME_TO_CONSIDER_LOST_SECS = 0.5
+TIME_TO_CONSIDER_LOST_SECS = 1
 MAX_RETRIES = 3
 
 
