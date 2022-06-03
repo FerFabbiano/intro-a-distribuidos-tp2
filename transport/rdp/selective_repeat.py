@@ -196,7 +196,7 @@ class SelectiveRepeatRdpController(RdpController):
         """
         Returns True if the connection is still alive.
         """
-        return self._connection_dead
+        return not self._connection_dead
 
     def _on_packet_lost(self, segment_lost):
         logging.debug("[RDP.on_loss] {}".format(segment_lost))
