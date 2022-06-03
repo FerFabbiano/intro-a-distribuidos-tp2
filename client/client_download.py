@@ -33,6 +33,7 @@ class ClientDownloadConnection:
                 logging.warning("[ WARN ] - "
                                 "File {} not found in server".format(self.file_name))
 
+            self.connection.close()
         except ValueError:
             logging.error("[ ERROR ]: Invalid OPCODE")
 
@@ -60,8 +61,6 @@ class ClientDownloadConnection:
             while self.keep_alive and not file.end_of_file():
                 buffer = self.connection.recv(BATCH_FILE_SIZE)
                 file.write_chunk(buffer)
-
-        self.connection.close()
 
     def close(self):
         self.keep_alive = False

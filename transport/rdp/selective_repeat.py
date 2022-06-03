@@ -117,19 +117,22 @@ class SelectiveRepeatRdpController(RdpController):
         Called by the protocol when a new ACK has been received.
         """
         with self.lock:
-            for seq_number in list(self._in_flight):
-                if seq_number == segment.sequence_number:
-                    print("[RDP.on_ack] ACK MATCHES")
-                    # Segment was received, no longer in flight
-                    self._in_flight.pop(seq_number)
-                    break
+            if segment.sequence_number in self._in_flight:
+                self._in_flight.pop(segment.sequence_number)
+                print("[RDP.on_ack] ACK MATCHES: ", segment.sequence_number)
 
-            # print("[RDP.on_ack] ACK DOESN'T MATCH")
-            if segment.sequence_number == self._send_window_base:
-                # move send window base to the lowest unacknowledged sequence number
-                with self._send_window_cv:
+            print("CHEQUEO IGUALDAD: ", segment.sequence_number,
+                  self._send_window_base)
+            # move send window base to the lowest unacknowledged sequence number
+            with self._send_window_cv:
+                if segment.sequence_number == self._send_window_base:
+
                     if len(self._in_flight) > 0:
                         self._send_window_base = min(self._in_flight.keys())
+                    else:
+                        self._send_window_base += 1
+
+                    print("MOVI LA VENTANA", self._send_window_base)
                     self._send_window_cv.notify()
 
     def send_segment(self, segment: Segment):
@@ -140,22 +143,36 @@ class SelectiveRepeatRdpController(RdpController):
         to the correct value.
         """
         with self._send_window_cv:
-            send_window_end = self._send_window_base + self._send_window_size - 1
+
+            send_window_end = self._send_window_base + SEND_WINDOW_SIZE - 1
+
             while not (self._send_window_base <= self._sequence_number <= send_window_end):
+
                 # the seq number is not within the send window, the packet has to wait
                 self._send_window_cv.wait()
+                send_window_end = self._send_window_base + SEND_WINDOW_SIZE - 1
 
             with self.lock:
-                assert len(segment.payload) <= self.mss, f'Segment size must not be greater than {self.mss}'
+                assert len(
+                    segment.payload) <= self.mss, f'Segment size must not be greater than {self.mss}'
                 segment.sequence_number = self._sequence_number
                 self._sequence_number += 1
+                # rand = random()
+                print("ENVIANDO SEGMENTO: ", self._sequence_number)
+                if(self._sequence_number > 5):
+                    print("PERDIENDO SEGMENTO")
+                    return
+
                 self._network.send_segment(segment)
+
                 self._in_flight[segment.sequence_number] = segment
 
     def recv_segment(self) -> Segment:
         """
         Blocks until a segment is avaiable to be read.
         """
+
+        print("TRATANDO DE PEDIR RESPUESTA")
         return self._recv_queue.get()
 
     @property

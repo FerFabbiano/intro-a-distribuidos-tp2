@@ -64,26 +64,3 @@ def main():
 
 
 main()
-<<<<<<< HEAD
-=======
-
-# def main():
-#     # while(True):
-#     # s.sendto(b"NCLIENTE NUEVO", (HOST, PORT))
-#     connection = Connection.connect(HOST, PORT)
-#     print("[ NUEVA CONEXION ]")
-#     sleep(100000)
-#     print(str(connection))
-#     # (recvData, serverAddress) = s.recvfrom(BUFFER_SIZE)
-
-#     # Poner validacion de que solo el servidor me mande mensajes
-
-#     # s.sendto(b"C", (HOST, PORT))
-#     # (recvData, serverAddress) = s.recvfrom(BUFFER_SIZE)
-
-#     # print("[ PROTOCOL ACK ] - ", str(recvData))
-
-
-# main()
-# print(f"Received {data!r}")
->>>>>>> 510b3302d85ce6afd4b92e0b03e4ed504d59dccc
