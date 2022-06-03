@@ -20,4 +20,4 @@ e.g: python3 upload.py -H 127.0.0.1 -p 65434 -s ./example_files/upload.txt -n up
 
 python3 download.py [-h] [-v │ -q] [-H ADDR] [-p PORT] [-s FILEPATH] [-n FILENAME]
 
-e.g: python3 download.py -H 127.0.0.1 -p 65434 -d files/upserver.txt -n upload.txt -v
+e.g: python3 download.py -H 127.0.0.1 -p 65434 -d files/upserver.txt -n upload.txt
