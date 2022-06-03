@@ -32,7 +32,7 @@ class FSConnection:
         except ValueError:
             logging.error("[ CONNECTION ]: Invalid OPCODE {}".format(opcode))
         finally:
-            self.connection = True
+            self.is_dead = True
             self.connection.close()
 
     def is_dead(self):
