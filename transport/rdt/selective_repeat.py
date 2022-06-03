@@ -2,7 +2,7 @@ import queue
 import threading
 import time
 import logging
-from transport.rdp import RdpController
+from transport.rdt import rdtController
 from transport.segment import Segment, Opcode
 
 TIME_TO_CONSIDER_LOST_SECS = 10
@@ -11,7 +11,7 @@ SEND_WINDOW_SIZE = 4
 RECV_WINDOW_SIZE = 4
 
 
-class SelectiveRepeatRdpController(RdpController):
+class SelectiveRepeatrdtController(rdtController):
     def __init__(self, raw_connection):
         self._mss = 500
         self._in_flight = {}
@@ -184,7 +184,7 @@ class SelectiveRepeatRdpController(RdpController):
         Returns the maximum size of a segment's payload, in bytes.
 
         This property is guaranteed to be constant for the whole
-        lifetime of the RdpController's instance.
+        lifetime of the rdtController's instance.
         """
         return self._mss
 
@@ -195,7 +195,7 @@ class SelectiveRepeatRdpController(RdpController):
         return not self._connection_dead
 
     def _on_packet_lost(self, segment_lost):
-        logging.debug("[RDP.on_loss] {}".format(segment_lost))
+        logging.debug("[rdt.on_loss] {}".format(segment_lost))
 
         if segment_lost.retries >= MAX_RETRIES:
             logging.debug(

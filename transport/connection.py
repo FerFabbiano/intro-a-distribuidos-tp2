@@ -23,7 +23,7 @@ class Connection:
 
     def on_segment_received(self, segment, _):
         """
-        Forwards a network event to the RDP controller
+        Forwards a network event to the rdt controller
         """
         if segment.opcode == Opcode.NewConnection:
             self._controller.do_passive_handshake(segment)
