@@ -6,14 +6,18 @@ Repositorio para el Trabajo Práctico 2 de la materia Introducción a los sistem
 
 #### Correr el servidor
 
+python3 server.py [-h] [-v │ -q] [-H ADDR] [-p PORT] [-s DIRPATH]
 
-
-e.g: python server.py  -H 127.0.0.1 -p 65434 -s files
+e.g: python3 server.py  -H 127.0.0.1 -p 65434 -s files
 
 #### Hacer un upload desde un cliente
 
-e.g: python upload.py -H 127.0.0.1 -p 65434 -s ./example_files/upload.txt -n upload.txt
+python3 upload.py [-h] [-v │ -q] [-H ADDR] [-p PORT] [-s FILEPATH] [-n FILENAME]
+
+e.g: python3 upload.py -H 127.0.0.1 -p 65434 -s ./example_files/upload.txt -n upload.txt
 
 #### Hacer un download desde un cliente
 
-e.g: python download.py -H 127.0.0.1 -p 65434 -d files/upserver.txt -n upload.txt -v
+python3 download.py [-h] [-v │ -q] [-H ADDR] [-p PORT] [-s FILEPATH] [-n FILENAME]
+
+e.g: python3 download.py -H 127.0.0.1 -p 65434 -d files/upserver.txt -n upload.txt -v
