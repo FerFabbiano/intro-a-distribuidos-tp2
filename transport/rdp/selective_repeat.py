@@ -5,7 +5,7 @@ import logging
 from .rdp_controller import RdpController
 from transport.segment import Segment, Opcode
 
-TIME_TO_CONSIDER_LOST_SECS = 0.3
+TIME_TO_CONSIDER_LOST_SECS = 1
 MAX_RETRIES = 10
 SEND_WINDOW_SIZE = 128
 RECV_WINDOW_SIZE = 2 * SEND_WINDOW_SIZE
