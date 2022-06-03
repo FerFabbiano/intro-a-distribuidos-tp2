@@ -1,10 +1,6 @@
-import time
-
-from .rdt import RdtController, StopAndWaitRdtController
-from .raw_connection import RawConnection
+from .rdt import RdtController
 from .connection import Connection
 from .segment import Segment
-import threading
 
 
 class PassiveConnection(Connection):

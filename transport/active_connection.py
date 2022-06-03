@@ -1,11 +1,8 @@
-import time
 import socket
 
-from .rdt import RdtController, StopAndWaitRdtController
 from .raw_connection import RawConnection
 from .connection import Connection, NETWORK_TICK_SECONDS
 from .network_thread import NetworkThread
-from transport.segment import Segment, Opcode
 import threading
 
 from .rdt_controller import DefaultRdtController

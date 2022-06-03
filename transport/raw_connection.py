@@ -1,6 +1,4 @@
-import socket
 import logging
-from .segment import Opcode
 from threading import Timer
 import random
 
@@ -18,7 +16,9 @@ class RawConnection:
 
     def send_segment(self, segment):
         if FAKE_RTT_ENABLED:
-            Timer(FAKE_RTT_SECONDS, lambda: self._do_send_segment(segment)).start()
+            Timer(
+                FAKE_RTT_SECONDS,
+                lambda: self._do_send_segment(segment)).start()
         else:
             self._do_send_segment(segment)
 

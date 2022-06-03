@@ -31,7 +31,8 @@ class ClientDownloadConnection:
 
             elif action == Opcode.FileNotFound:
                 logging.warning("[ WARN ] - "
-                                "File {} not found in server".format(self.file_name))
+                                "File {} not found in server"
+                                .format(self.file_name))
 
             self.connection.close()
         except ValueError:

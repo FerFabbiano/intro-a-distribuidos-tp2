@@ -85,7 +85,8 @@ class Segment:
                              self.sequence_number)
         segment = header + self.payload
         assert len(segment) <= MAX_UDP_DATAGRAM_SIZE, \
-            f"Segment won't fit in a datagram ({len(segment)} >= {MAX_UDP_DATAGRAM_SIZE})"
+            f"Segment won't fit in a datagram ({len(segment)} >= \
+                {MAX_UDP_DATAGRAM_SIZE})"
         return segment
 
     def __repr__(self):
@@ -93,7 +94,8 @@ class Segment:
         if len(self.payload) > 10:
             payload_repr += '...'
 
-        return f'Segment({Opcode(self.opcode)}, seq={self.sequence_number}, {payload_repr})'
+        return f'Segment({Opcode(self.opcode)}, seq={self.sequence_number}, \
+            {payload_repr})'
 
     def __str__(self):
         return repr(self)

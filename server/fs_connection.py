@@ -49,7 +49,8 @@ class FSConnection:
         logging.debug('FN: %s', file_name)
 
         logging.info(
-            "[ CONNECTION ] User wants to upload %s with size: %i", file_name, file_size)
+            "[ CONNECTION ] User wants to upload %s with size: %i",
+            file_name, file_size)
 
         # Accept request
         res = ProtocolBuilder.accept_request()

@@ -1,7 +1,6 @@
-from threading import Thread
 from application.file_utils import FileReader
 from client.client_upload import ClientUploadConnection
-from client.client_utils import build_upload_parser, finish_or_wait_quit
+from client.client_utils import build_upload_parser
 from transport.connection import Connection
 import logging
 
@@ -33,8 +32,9 @@ def main():
     logging.debug(
         "[ INFO ] - Got source file path: {}".format(source_file_path))
     logging.debug("[ INFO ] - Got file name: {}".format(file_name_dst))
-    logging.info("[INFO] Se establecera una conexion con el host : {} y port: {}".format(
-        args.host, server_port))
+    logging.info(
+        "[INFO] Se establecera una conexion con el host : {} y port: {}"
+        .format(args.host, server_port))
 
     connection = Connection.connect(args.host, server_port)
 

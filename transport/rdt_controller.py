@@ -1,3 +1,3 @@
-from transport.rdt import StopAndWaitRdtController, SelectiveRepeatRdtController
+from transport.rdt import SelectiveRepeatRdtController
 
 DefaultRdtController = SelectiveRepeatRdtController

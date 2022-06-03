@@ -63,14 +63,16 @@ class ClientUploadConnection:
                     CHUNK_SIZE
                 )
 
-                logging.debug("[ DEBUG] - Read {} bytes from file. Sending to server."
-                              .format(str(len(file_bytes))))
+                logging.debug(
+                    "[ DEBUG] - Read {} bytes from file. Sending to server."
+                    .format(str(len(file_bytes))))
 
                 self.connection.send(file_bytes)
                 logging.debug("[ SUCCESS ] - Sent {} bytes to server."
                               .format(str(len(file_bytes))))
             logging.debug(
-                f'[Quitting upload loop] {self.keep_alive=} {file.end_of_file()=}')
+                f'[Quitting upload loop] {self.keep_alive=} \
+                {file.end_of_file()=}')
 
     def close(self):
         self.keep_alive = False

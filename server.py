@@ -11,8 +11,9 @@ def main():
     logging.basicConfig(
         format='%(asctime)s - %(message)s', datefmt='%H:%M:%S',
         level=args.loglevel)
-    logging.info("[INFO] Se esta iniciando el servidor en el host : {} y port: {}".format(
-        args.host, int(args.port)))
+    logging.info(
+        "[INFO] Se esta iniciando el servidor en el host : {} y port: {}"
+        .format(args.host, int(args.port)))
     thread = Thread(target=fsServer.run)
     thread.start()
     userInput = input()

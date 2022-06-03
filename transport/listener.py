@@ -1,13 +1,10 @@
-import time
 import socket
-import select
 
-from threading import Thread, Timer
+from threading import Timer
 from queue import Queue
 
 from .rdt_controller import DefaultRdtController
-from .segment import Segment, Opcode
-from .rdt import StopAndWaitRdtController
+from .segment import Opcode
 from .raw_connection import RawConnection
 from .network_thread import NetworkThread
 from .connection import NETWORK_TICK_SECONDS

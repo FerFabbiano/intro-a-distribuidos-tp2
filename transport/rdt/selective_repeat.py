@@ -60,7 +60,9 @@ class SelectiveRepeatRdtController(RdtController):
             # Segment or None.
 
             # find offset of segment inside recv window
-            rwnd_offset = segment.sequence_number-self._recv_sequence_number - 1
+            rwnd_offset = segment.sequence_number - \
+                self._recv_sequence_number - 1
+
             if ((0 <= rwnd_offset < self._rwnd_size)
                     and self._recv_window[rwnd_offset] is None):
                 # If it is inside the window, and we
@@ -149,7 +151,7 @@ class SelectiveRepeatRdtController(RdtController):
 
     def _update_send_window(self):
         """
-        Checks what ACKs have been received and updates the send window 
+        Checks what ACKs have been received and updates the send window
         accordingly.
 
         Note that the global instance lock must not be held when calling
