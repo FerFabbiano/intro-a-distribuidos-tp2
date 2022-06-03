@@ -8,6 +8,7 @@ from transport.connection import Connection
 
 class FSConnection:
     def __init__(self, connection: Connection, baseFsFolder):
+        self.is_dead = False
         self.connection = connection
         self.baseFsFolder = baseFsFolder
         self.thread = Thread(target=self.run)
@@ -31,7 +32,11 @@ class FSConnection:
         except ValueError:
             logging.error("[ CONNECTION ]: Invalid OPCODE {}".format(opcode))
         finally:
+            self.is_dead = True
             self.connection.close()
+
+    def is_dead(self):
+        return self.is_dead
 
     def process_upload(self):
         fs_length_raw = self.connection.recv_exact(4)
