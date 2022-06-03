@@ -1,7 +1,7 @@
 import queue
 import threading
 import time
-
+import logging
 from transport.rdp import RdpController
 from transport.segment import Segment, Opcode
 
@@ -159,9 +159,6 @@ class SelectiveRepeatRdpController(RdpController):
                 self._sequence_number += 1
                 # rand = random()
                 print("ENVIANDO SEGMENTO: ", self._sequence_number)
-                if(self._sequence_number > 5):
-                    print("PERDIENDO SEGMENTO")
-                    return
 
                 self._network.send_segment(segment)
 
@@ -192,7 +189,7 @@ class SelectiveRepeatRdpController(RdpController):
         pass
 
     def _on_packet_lost(self, segment_lost):
-        print("[RDP.on_loss]", segment_lost)
+        logging.debug("[RDP.on_loss] {}".format(segment_lost))
         if segment_lost.retries >= MAX_RETRIES:
             self._connection_dead = True
             with self._send_window_cv:

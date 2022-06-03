@@ -21,6 +21,8 @@ def main():
     source_file_path = args.src
     file_name_dst = args.name
 
+    logging.info("[INFO] Cliente iniciado, se realizara un upload")
+
     if not FileReader.file_exists(source_file_path):
         logging.error(
             "[ ERROR ] - "
@@ -33,8 +35,11 @@ def main():
     logging.debug(
         "[ INFO ] - Got source file path: {}".format(source_file_path))
     logging.debug("[ INFO ] - Got file name: {}".format(file_name_dst))
+    logging.info("[INFO] Se establecera una conexion con el host : {} y port: {}".format(
+        HOST, server_port))
 
     connection = Connection.connect(HOST, server_port)
+
     logging.debug("[ INFO ] - Nueva conexión generada con el servidor")
 
     client = ClientUploadConnection(
@@ -51,6 +56,7 @@ def main():
     client.close()
     logging.debug(
         "[ INFO ] - Thread joineados exitosamente! Terminando programa.")
+    logging.info("[INFO] - El cliente se ha cerrado exitosamente.")
 
     return 0
 

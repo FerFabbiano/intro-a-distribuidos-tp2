@@ -26,10 +26,10 @@ class NetworkThread:
             data, remote_address = self._socket.recvfrom(BUFFER_SIZE)
             segment = Segment.from_datagram(data)
             if not segment.is_checksum_correct():
-                logging.info(
+                logging.debug(
                     f'[NetworkThread@{remote_address}]: Invalid checksum {repr(segment)}')
                 continue
-            logging.info(f'<R {repr(segment)}')
+            logging.debug(f'<R {repr(segment)}')
             self._on_segment_received(segment, remote_address)
 
     def stop(self):

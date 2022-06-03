@@ -8,10 +8,11 @@ def main():
 
     args = build_server_parser().parse_args()
     fsServer = FSServer(args.host, int(args.port), args.dirpath)
-
     logging.basicConfig(
         format='%(asctime)s - %(message)s', datefmt='%H:%M:%S',
         level=args.loglevel)
+    logging.info("[INFO] Se esta iniciando el servidor en el host : {} y port: {}".format(
+        args.host, int(args.port)))
     thread = Thread(target=fsServer.run)
     thread.start()
     userInput = input()
@@ -19,11 +20,12 @@ def main():
     while userInput != "q":
         userInput = input()
 
+    logging.info("[INFO] - Servidor ha sido frenado")
     fsServer.stop()
 
-    logging.info("[INFO] - Servidor termino de correr")
     thread.join()
-    logging.debug("[DEBUG] - Servidor termino de correr")
+    logging.info("[INFO] - El servidor ha finalizado exitosamente")
+    logging.debug("[DEBUG] - Servidor ha joineado y termino de correr")
 
 
 if __name__ == "__main__":
