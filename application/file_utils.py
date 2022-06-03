@@ -54,7 +54,7 @@ class FileWriter():
         self.write_offset += len(buffer)
         # print(
         #   f"[FileWriter.write_chunk] {self.write_offset=} {len(buffer)=}", )
-        logging.debug("[FileReader.read_chunk] {} {}".format(
+        logging.debug("[FileWriter.write_chunk] {} {}".format(
             self.write_offset, len(buffer)))
 
     def end_of_file(self):

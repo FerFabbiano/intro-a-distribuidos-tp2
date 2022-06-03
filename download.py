@@ -53,11 +53,6 @@ def main():
 
     # finish_or_wait_quit(client)
 
-    logging.debug(
-        "[ INFO ] - Comienzo cierre de conexión con servidor."
-        "Joineando threads."
-    )
-
     client.run()
     client.close()
 

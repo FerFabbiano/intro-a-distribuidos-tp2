@@ -48,10 +48,6 @@ def main():
         source_file_path
     )
 
-    logging.debug(
-        "[ INFO ] - Comienzo cierre de conexión con servidor."
-        "Joineando threads."
-    )
     client.run()
     client.close()
     logging.debug(
