@@ -2,14 +2,14 @@ import time
 import threading
 import queue
 import logging
-from .rdt_controller import rdtController
+from .rdt_controller import RdtController
 from transport.segment import Segment, Opcode
 
-TIME_TO_CONSIDER_LOST_SECS = 1
+TIME_TO_CONSIDER_LOST_SECS = 0.5
 MAX_RETRIES = 3
 
 
-class StopAndWaitrdtController(rdtController):
+class StopAndWaitRdtController(RdtController):
     def __init__(self, raw_connection):
         self._mss = 500
         self._in_flight = None
@@ -53,12 +53,12 @@ class StopAndWaitrdtController(rdtController):
     def on_ack_received(self, segment):
         with self.lock:
             if self._sequence_number == segment.sequence_number + 1:
-                logging.debug("[rdt.on_ack] ACK MATCHES")
+                logging.debug("[RDP.on_ack] ACK MATCHES")
                 with self._in_flight_cv:
                     self._in_flight = None  # Segment was received by the other end
                     self._in_flight_cv.notify()
             else:
-                logging.debug("[rdt.on_ack] ACK DOESN'T MATCH")
+                logging.debug("[RDP.on_ack] ACK DOESN'T MATCH")
 
     def send_segment(self, segment: Segment):
         """
@@ -93,7 +93,7 @@ class StopAndWaitrdtController(rdtController):
         return not self._connection_dead
 
     def _on_packet_lost(self, segment_lost):
-        logging.debug("[rdt.on_loss] {}".format(segment_lost))
+        logging.debug("[RDP.on_loss] {}".format(segment_lost))
         if segment_lost.retries >= MAX_RETRIES:
             self._in_flight = None
             with self._in_flight_cv:

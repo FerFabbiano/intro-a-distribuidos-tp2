@@ -7,7 +7,7 @@ from queue import Queue
 
 from .rdt_controller import DefaultRdtController
 from .segment import Segment, Opcode
-from .rdt import StopAndWaitrdtController
+from .rdt import StopAndWaitRdtController
 from .raw_connection import RawConnection
 from .network_thread import NetworkThread
 from .connection import NETWORK_TICK_SECONDS
@@ -24,7 +24,7 @@ class Listener:
         self.connections = {}
         self._network_thread = None
         self._timer = Timer(NETWORK_TICK_SECONDS, self.on_tick)
-        # self._ControllerType = ControllerType or StopAndWaitrdtController
+        # self._ControllerType = ControllerType or StopAndWaitRdtController
         self._ControllerType = ControllerType or DefaultRdtController
         self._closing = False
 

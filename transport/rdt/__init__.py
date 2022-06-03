@@ -1,3 +1,3 @@
-from .rdt_controller import rdtController
-from .stop_and_wait import StopAndWaitrdtController
-from .selective_repeat import SelectiveRepeatrdtController
+from .rdt_controller import RdtController
+from .stop_and_wait import StopAndWaitRdtController
+from .selective_repeat import SelectiveRepeatRdtController

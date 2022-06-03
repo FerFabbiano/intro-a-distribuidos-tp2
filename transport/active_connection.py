@@ -1,7 +1,7 @@
 import time
 import socket
 
-from .rdt import rdtController, StopAndWaitrdtController
+from .rdt import RdtController, StopAndWaitRdtController
 from .raw_connection import RawConnection
 from .connection import Connection, NETWORK_TICK_SECONDS
 from .network_thread import NetworkThread
@@ -39,7 +39,7 @@ class ActiveConnection(Connection):
                 NETWORK_TICK_SECONDS, self.on_tick).start()
 
     def close(self):
-        self._controller.close()
+        super().close()
         self._closing = True
         self._network_thread.stop()
         self._socket.close()
